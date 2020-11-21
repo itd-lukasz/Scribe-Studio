@@ -15,10 +15,8 @@ namespace Scribe.Studio.Logic
         public static void SaveConfiguration(string fileName)
         {
             string fileContent = "";
-            //foreach(KeyValuePair<string, object> parameter in Parameters)
-            //{
-            //    fileContent += JsonConvert.SerializeObject(Para);
-            //}
+            fileContent = JsonConvert.SerializeObject(Parameters);
+            
             StreamWriter sw = new StreamWriter(fileName);
             sw.WriteLine(fileContent);
             sw.Close();
@@ -26,7 +24,18 @@ namespace Scribe.Studio.Logic
 
         public static void LoadConfiguration(string fileName)
         {
-            throw new NotImplementedException();
+            try
+            {
+                StreamReader sr = new StreamReader(fileName);
+                string fileContent = sr.ReadToEnd();
+                sr.Close();
+                Parameters = JsonConvert.DeserializeObject<List<KeyValuePair<string, object>>>(fileContent);
+            }
+            catch(Exception exc)
+            {
+                Parameters = new List<KeyValuePair<string, object>>();
+                throw exc;
+            }
         }
     }
 }
