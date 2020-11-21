@@ -1,0 +1,100 @@
+﻿using Syncfusion.WinForms.Controls;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Scribe.Studio.Configuration_Forms
+{
+    public partial class environmentForm : SfForm
+    {
+        public environmentForm()
+        {
+            InitializeComponent();
+            ThemeName = "Office2016Colorful";
+            Text = "New environment...";
+            ValidateForm();
+        }
+
+        private void colorButton_Click(object sender, EventArgs e)
+        {
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                colorButton.BackColor = colorDialog.Color;
+            }
+        }
+
+        private void windowsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (windowsCheckBox.Checked)
+            {
+                userTextEdit.Enabled = false;
+                passwordTextEdit.Enabled = false;
+            }
+            else
+            {
+                userTextEdit.Enabled = true;
+                passwordTextEdit.Enabled = true;
+            }
+        }
+
+        private bool ValidateForm()
+        {
+            errorProvider.Clear();
+            bool validated = true;
+            if (!windowsCheckBox.Checked)
+            {
+                if (passwordTextEdit.Text.Length == 0)
+                {
+                    errorProvider.SetError(passwordTextEdit, "This field must be filled!");
+                    validated = false;
+                }
+                if (userTextEdit.Text.Length == 0)
+                {
+                    errorProvider.SetError(userTextEdit, "This field must be filled!");
+                    validated = false;
+                }
+            }
+            if (databaseTextEdit.Text.Length == 0)
+            {
+                errorProvider.SetError(databaseTextEdit, "This field must be filled!");
+                validated = false;
+            }
+            if (serverTextEdit.Text.Length == 0)
+            {
+                errorProvider.SetError(serverTextEdit, "This field must be filled!");
+                validated = false;
+            }
+            if (nameTextEdit.Text.Length == 0)
+            {
+                errorProvider.SetError(nameTextEdit, "This field must be filled!");
+                validated = false;
+            }
+            return validated;
+        }
+
+        private void saveBtn_Click(object sender, EventArgs e)
+        {
+            if (ValidateForm())
+            {
+                DialogResult = DialogResult.OK;
+            }
+        }
+
+        public Logic.Environment GetEnvironment()
+        {
+            return new Logic.Environment(nameTextEdit.Text,
+                colorButton.BackColor,
+                serverTextEdit.Text,
+                databaseTextEdit.Text,
+                windowsCheckBox.Checked,
+                windowsCheckBox.Checked ? userTextEdit.Text : null,
+                windowsCheckBox.Checked ? passwordTextEdit.Text : null);
+        }
+    }
+}
