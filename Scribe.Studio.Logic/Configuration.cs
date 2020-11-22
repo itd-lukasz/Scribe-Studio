@@ -16,7 +16,7 @@ namespace Scribe.Studio.Logic
         {
             string fileContent = "";
             fileContent = JsonConvert.SerializeObject(Parameters);
-            
+
             StreamWriter sw = new StreamWriter(fileName);
             sw.WriteLine(fileContent);
             sw.Close();
@@ -30,8 +30,17 @@ namespace Scribe.Studio.Logic
                 string fileContent = sr.ReadToEnd();
                 sr.Close();
                 Parameters = JsonConvert.DeserializeObject<List<KeyValuePair<string, object>>>(fileContent);
+                for (int a = 0; a < Parameters.Count; a++)
+                {
+                    KeyValuePair<string, object> item = Parameters[a];
+                    if (item.Key.StartsWith("ENV|"))
+                    {
+                        item = new KeyValuePair<string, object>(item.Key, JsonConvert.DeserializeObject<Environment>(item.Value.ToString()));
+                        Parameters[a] = item;
+                    }
+                }
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
                 Parameters = new List<KeyValuePair<string, object>>();
                 throw exc;

@@ -34,11 +34,10 @@ namespace Scribe.Studio
 
         private void PopulateEnvironmentsGrid()
         {
-            //throw new NotImplementedException();
             List<Logic.Environment> environments = new List<Logic.Environment>();
             environments.AddRange(Configuration.Parameters.Where(e => e.Key.StartsWith("ENV|")).Select(s => s.Value).ToList().Cast<Logic.Environment>());
-            //environments.Add(new Logic.Environment("srv1", "db1", true));
             environmentsGrid.DataSource = environments;
+            environmentsGrid.Columns.Remove(environmentsGrid.Columns.Where(c=>c.MappingName=="Password").FirstOrDefault());
         }
 
         //Configuration.Parameters = new List<KeyValuePair<string, object>>();
@@ -61,7 +60,7 @@ namespace Scribe.Studio
 
         private void ribbonControl_MenuButtonClick(object sender, EventArgs e)
         {
-            //PopulateEnvironmentsGrid();
+            PopulateEnvironmentsGrid();
         }
 
         private void addEnvironmentBtn_Click(object sender, EventArgs e)
@@ -69,6 +68,27 @@ namespace Scribe.Studio
             environmentForm environment = new environmentForm();
             if (environment.ShowDialog() == DialogResult.OK)
             {
+                Configuration.Parameters.Add(new KeyValuePair<string, object>(string.Format("ENV|{0}", environment.GetEnvironment().Name), environment.GetEnvironment()));
+                PopulateEnvironmentsGrid();
+            }
+        }
+
+        private void environmentsGrid_QueryCellStyle(object sender, Syncfusion.WinForms.DataGrid.Events.QueryCellStyleEventArgs e)
+        {
+            e.Style.BackColor = ((Logic.Environment)e.DataRow.RowData).Color;
+        }
+
+        private void saveConfigBtn_Click(object sender, EventArgs e)
+        {
+            Configuration.SaveConfiguration("configuration.json");
+        }
+
+        private void environmentsGrid_CellDoubleClick(object sender, Syncfusion.WinForms.DataGrid.Events.CellClickEventArgs e)
+        {
+            environmentForm environment = new environmentForm((Logic.Environment)e.DataRow.RowData);
+            if (environment.ShowDialog() == DialogResult.OK)
+            {
+                Configuration.Parameters.Remove(Configuration.Parameters.Where(p => p.Key == string.Format("ENV|{0}", ((Logic.Environment)e.DataRow.RowData).Name)).FirstOrDefault());
                 Configuration.Parameters.Add(new KeyValuePair<string, object>(string.Format("ENV|{0}", environment.GetEnvironment().Name), environment.GetEnvironment()));
                 PopulateEnvironmentsGrid();
             }
