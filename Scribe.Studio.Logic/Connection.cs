@@ -47,7 +47,7 @@ namespace Scribe.Studio.Logic
         public Connection(string server, string database, bool windowsAuth, string user = null, string password = null)
         {
             this.server = server;
-            this.password = password;
+            this.database = database;
             this.windowsAuth = windowsAuth;
             this.user = user;
             this.password = password;

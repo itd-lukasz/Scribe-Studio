@@ -21,6 +21,21 @@ namespace Scribe.Studio.Configuration_Forms
             ValidateForm();
         }
 
+        public environmentForm(Logic.Environment environment)
+        {
+            InitializeComponent();
+            ThemeName = "Office2016Colorful";
+            Text = string.Format("Edit {0} environment...", environment.Name);
+            nameTextEdit.Text = environment.Name;
+            colorButton.BackColor = environment.Color;
+            serverTextEdit.Text = environment.Server;
+            databaseTextEdit.Text = environment.Database;
+            windowsCheckBox.Checked = Convert.ToBoolean(environment.WindowsAuthentication);
+            userTextEdit.Text = environment.User;
+            passwordTextEdit.Text = environment.Password;
+            ValidateForm();
+        }
+
         private void colorButton_Click(object sender, EventArgs e)
         {
             if (colorDialog.ShowDialog() == DialogResult.OK)
@@ -41,6 +56,7 @@ namespace Scribe.Studio.Configuration_Forms
                 userTextEdit.Enabled = true;
                 passwordTextEdit.Enabled = true;
             }
+            ValidateForm();
         }
 
         private bool ValidateForm()
@@ -93,8 +109,33 @@ namespace Scribe.Studio.Configuration_Forms
                 serverTextEdit.Text,
                 databaseTextEdit.Text,
                 windowsCheckBox.Checked,
-                windowsCheckBox.Checked ? userTextEdit.Text : null,
-                windowsCheckBox.Checked ? passwordTextEdit.Text : null);
+                !windowsCheckBox.Checked ? userTextEdit.Text : null,
+                !windowsCheckBox.Checked ? passwordTextEdit.Text : null);
+        }
+
+        private void nameTextEdit_TextChanged(object sender, EventArgs e)
+        {
+            ValidateForm();
+        }
+
+        private void serverTextEdit_TextChanged(object sender, EventArgs e)
+        {
+            ValidateForm();
+        }
+
+        private void databaseTextEdit_TextChanged(object sender, EventArgs e)
+        {
+            ValidateForm();
+        }
+
+        private void userTextEdit_TextChanged(object sender, EventArgs e)
+        {
+            ValidateForm();
+        }
+
+        private void passwordTextEdit_TextChanged(object sender, EventArgs e)
+        {
+            ValidateForm();
         }
     }
 }

@@ -40,6 +40,7 @@ namespace Scribe.Studio
             this.environmentsTabBottonPanel = new System.Windows.Forms.Panel();
             this.addEnvironmentBtn = new Syncfusion.WinForms.Controls.SfButton();
             this.removeEnvironmentBtn = new Syncfusion.WinForms.Controls.SfButton();
+            this.saveConfigBtn = new Syncfusion.Windows.Forms.BackStageButton();
             this.mainTab = new Syncfusion.Windows.Forms.Tools.ToolStripTabItem();
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl)).BeginInit();
             this.ribbonControl.SuspendLayout();
@@ -101,6 +102,7 @@ namespace Scribe.Studio
             this.backstage.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.backstage.ChildItemSize = new System.Drawing.Size(80, 140);
             this.backstage.Controls.Add(this.mainBackstageTab);
+            this.backstage.Controls.Add(this.saveConfigBtn);
             this.backstage.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.backstage.ItemSize = new System.Drawing.Size(190, 40);
             this.backstage.Location = new System.Drawing.Point(0, 103);
@@ -162,6 +164,8 @@ namespace Scribe.Studio
             this.environmentsGrid.PreviewRowHeight = 42;
             this.environmentsGrid.Size = new System.Drawing.Size(1857, 1267);
             this.environmentsGrid.TabIndex = 1;
+            this.environmentsGrid.QueryCellStyle += new Syncfusion.WinForms.DataGrid.Events.QueryCellStyleEventHandler(this.environmentsGrid_QueryCellStyle);
+            this.environmentsGrid.CellDoubleClick += new Syncfusion.WinForms.DataGrid.Events.CellClickEventHandler(this.environmentsGrid_CellDoubleClick);
             // 
             // environmentsTabBottonPanel
             // 
@@ -195,6 +199,17 @@ namespace Scribe.Studio
             this.removeEnvironmentBtn.TabIndex = 0;
             this.removeEnvironmentBtn.Text = "Remove";
             // 
+            // saveConfigBtn
+            // 
+            this.saveConfigBtn.Accelerator = "";
+            this.saveConfigBtn.BackColor = System.Drawing.Color.Transparent;
+            this.saveConfigBtn.Location = new System.Drawing.Point(0, 57);
+            this.saveConfigBtn.Name = "saveConfigBtn";
+            this.saveConfigBtn.Size = new System.Drawing.Size(189, 45);
+            this.saveConfigBtn.TabIndex = 4;
+            this.saveConfigBtn.Text = "Save configuration";
+            this.saveConfigBtn.Click += new System.EventHandler(this.saveConfigBtn_Click);
+            // 
             // mainTab
             // 
             this.mainTab.Name = "mainTab";
@@ -220,7 +235,7 @@ namespace Scribe.Studio
             this.Name = "mainForm";
             this.Padding = new System.Windows.Forms.Padding(1, 0, 1, 1);
             this.ShowApplicationIcon = false;
-            this.Text = "Form1";
+            this.Text = "Scribe Studio";
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl)).EndInit();
             this.ribbonControl.ResumeLayout(false);
             this.ribbonControl.PerformLayout();
@@ -249,6 +264,7 @@ namespace Scribe.Studio
         private Syncfusion.WinForms.Controls.SfButton removeEnvironmentBtn;
         private Syncfusion.WinForms.Controls.SfButton addEnvironmentBtn;
         private Syncfusion.WinForms.DataGrid.SfDataGrid environmentsGrid;
+        private Syncfusion.Windows.Forms.BackStageButton saveConfigBtn;
     }
 }
 
