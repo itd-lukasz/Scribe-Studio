@@ -69,7 +69,7 @@ namespace Scribe.Studio.Configuration_Forms
             this.nameGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.nameGroupBox.Location = new System.Drawing.Point(2, 2);
             this.nameGroupBox.Name = "nameGroupBox";
-            this.nameGroupBox.Size = new System.Drawing.Size(692, 62);
+            this.nameGroupBox.Size = new System.Drawing.Size(710, 62);
             this.nameGroupBox.TabIndex = 0;
             this.nameGroupBox.TabStop = false;
             this.nameGroupBox.Text = "Name:";
@@ -89,7 +89,7 @@ namespace Scribe.Studio.Configuration_Forms
             this.colorGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.colorGroupBox.Location = new System.Drawing.Point(2, 64);
             this.colorGroupBox.Name = "colorGroupBox";
-            this.colorGroupBox.Size = new System.Drawing.Size(692, 62);
+            this.colorGroupBox.Size = new System.Drawing.Size(710, 62);
             this.colorGroupBox.TabIndex = 1;
             this.colorGroupBox.TabStop = false;
             this.colorGroupBox.Text = "Color:";
@@ -114,7 +114,7 @@ namespace Scribe.Studio.Configuration_Forms
             this.connectionGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.connectionGroupBox.Location = new System.Drawing.Point(2, 126);
             this.connectionGroupBox.Name = "connectionGroupBox";
-            this.connectionGroupBox.Size = new System.Drawing.Size(692, 297);
+            this.connectionGroupBox.Size = new System.Drawing.Size(710, 297);
             this.connectionGroupBox.TabIndex = 2;
             this.connectionGroupBox.TabStop = false;
             this.connectionGroupBox.Text = "Database Connection:";
@@ -125,7 +125,7 @@ namespace Scribe.Studio.Configuration_Forms
             this.passwordGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.passwordGroupBox.Location = new System.Drawing.Point(3, 234);
             this.passwordGroupBox.Name = "passwordGroupBox";
-            this.passwordGroupBox.Size = new System.Drawing.Size(686, 62);
+            this.passwordGroupBox.Size = new System.Drawing.Size(704, 62);
             this.passwordGroupBox.TabIndex = 5;
             this.passwordGroupBox.TabStop = false;
             this.passwordGroupBox.Text = "Password:";
@@ -147,7 +147,7 @@ namespace Scribe.Studio.Configuration_Forms
             this.userGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.userGroupBox.Location = new System.Drawing.Point(3, 172);
             this.userGroupBox.Name = "userGroupBox";
-            this.userGroupBox.Size = new System.Drawing.Size(686, 62);
+            this.userGroupBox.Size = new System.Drawing.Size(704, 62);
             this.userGroupBox.TabIndex = 4;
             this.userGroupBox.TabStop = false;
             this.userGroupBox.Text = "User:";
@@ -167,7 +167,7 @@ namespace Scribe.Studio.Configuration_Forms
             this.databaseGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.databaseGroupBox.Location = new System.Drawing.Point(3, 110);
             this.databaseGroupBox.Name = "databaseGroupBox";
-            this.databaseGroupBox.Size = new System.Drawing.Size(686, 62);
+            this.databaseGroupBox.Size = new System.Drawing.Size(704, 62);
             this.databaseGroupBox.TabIndex = 2;
             this.databaseGroupBox.TabStop = false;
             this.databaseGroupBox.Text = "Database:";
@@ -188,7 +188,7 @@ namespace Scribe.Studio.Configuration_Forms
             this.serverGroupBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.serverGroupBox.Location = new System.Drawing.Point(3, 22);
             this.serverGroupBox.Name = "serverGroupBox";
-            this.serverGroupBox.Size = new System.Drawing.Size(686, 88);
+            this.serverGroupBox.Size = new System.Drawing.Size(704, 88);
             this.serverGroupBox.TabIndex = 1;
             this.serverGroupBox.TabStop = false;
             this.serverGroupBox.Text = "Server:";
@@ -232,7 +232,7 @@ namespace Scribe.Studio.Configuration_Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(696, 552);
+            this.ClientSize = new System.Drawing.Size(714, 603);
             this.Controls.Add(this.saveBtn);
             this.Controls.Add(this.connectionGroupBox);
             this.Controls.Add(this.colorGroupBox);

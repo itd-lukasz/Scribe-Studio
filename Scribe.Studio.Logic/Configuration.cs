@@ -16,7 +16,6 @@ namespace Scribe.Studio.Logic
         {
             string fileContent = "";
             fileContent = JsonConvert.SerializeObject(Parameters);
-
             StreamWriter sw = new StreamWriter(fileName);
             sw.WriteLine(fileContent);
             sw.Close();
@@ -38,6 +37,11 @@ namespace Scribe.Studio.Logic
                         item = new KeyValuePair<string, object>(item.Key, JsonConvert.DeserializeObject<Environment>(item.Value.ToString()));
                         Parameters[a] = item;
                     }
+                    //if (item.Key.StartsWith("QUEUE|"))
+                    //{
+                    //    item = new KeyValuePair<string, object>(item.Key, JsonConvert.DeserializeObject<string>(item.Value.ToString()));
+                    //    Parameters[a] = item;
+                    //}
                 }
             }
             catch (Exception exc)
