@@ -1,5 +1,6 @@
 ﻿using Scribe.Studio.Configuration_Forms;
 using Scribe.Studio.Logic;
+using Scribe.Studio.Queue_Forms;
 using Syncfusion.Windows.Forms;
 using Syncfusion.Windows.Forms.Tools;
 using Syncfusion.WinForms.DataGrid;
@@ -37,24 +38,25 @@ namespace Scribe.Studio
             List<Logic.Environment> environments = new List<Logic.Environment>();
             environments.AddRange(Configuration.Parameters.Where(e => e.Key.StartsWith("ENV|")).Select(s => s.Value).ToList().Cast<Logic.Environment>());
             environmentsGrid.DataSource = environments;
-            environmentsGrid.Columns.Remove(environmentsGrid.Columns.Where(c=>c.MappingName=="Password").FirstOrDefault());
+            environmentsGrid.Columns.Remove(environmentsGrid.Columns.Where(c => c.MappingName == "Password").FirstOrDefault());
         }
 
-        //Configuration.Parameters = new List<KeyValuePair<string, object>>();
-        //    Configuration.Parameters.Add(new KeyValuePair<string, object>("env1", new Logic.Environment("srv1", "db1", true)));
-        //    Configuration.Parameters.Add(new KeyValuePair<string, object>("env2", new Logic.Environment("srv2", "db2", true)));
-        //    Configuration.Parameters.Add(new KeyValuePair<string, object>("env3", new Logic.Environment("srv3", "db3", true)));
-        //    Configuration.Parameters.Add(new KeyValuePair<string, object>("env4", new Logic.Environment("srv4", "db4", true)));
-        //    Configuration.Parameters.Add(new KeyValuePair<string, object>("env5", new Logic.Environment("srv5", "db5", true)));
-        //    Configuration.SaveConfiguration("test.json");
-        //    Configuration.Parameters = new List<KeyValuePair<string, object>>();
-        //    Configuration.LoadConfiguration("test.json");
+        private void PopulateQueuesGrid()
+        {
+            List<string> queues = new List<string>();
+            queues.AddRange(Configuration.Parameters.Where(e => e.Key.StartsWith("QUEUE|")).Select(s => s.Value).ToList().Cast<string>());
+            queueList.DataSource = queues;
+        }
 
         private void applicationMenuTabs_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (applicationMenuTabs.SelectedIndex == 0)
             {
                 PopulateEnvironmentsGrid();
+            }
+            if (applicationMenuTabs.SelectedIndex == 1)
+            {
+                PopulateQueuesGrid();
             }
         }
 
@@ -92,6 +94,37 @@ namespace Scribe.Studio
                 Configuration.Parameters.Add(new KeyValuePair<string, object>(string.Format("ENV|{0}", environment.GetEnvironment().Name), environment.GetEnvironment()));
                 PopulateEnvironmentsGrid();
             }
+        }
+
+        private void addMessageQueueFromFileBtn_Click(object sender, EventArgs e)
+        {
+            importMessageForm importMessageForm = new importMessageForm();
+            importMessageForm.ShowDialog();
+        }
+
+        private void addQueueBtn_Click(object sender, EventArgs e)
+        {
+            queueForm queueForm = new queueForm();
+            if (queueForm.ShowDialog() == DialogResult.OK)
+            {
+                Configuration.Parameters.Add(new KeyValuePair<string, object>(string.Format("QUEUE|{0}", queueForm.GetQueueName()), queueForm.GetQueueName()));
+                PopulateQueuesGrid();
+            }
+        }
+
+        private void removeQueueBtn_Click(object sender, EventArgs e)
+        {
+            if (queueList.SelectedItem != null)
+            {
+                queueList.View.Items.Remove(queueList.SelectedItem);
+                Configuration.Parameters.Remove(Configuration.Parameters.Where(p => p.Key == string.Format("QUEUE|{0}", queueList.SelectedItem)).FirstOrDefault());
+                PopulateQueuesGrid();
+            }
+        }
+
+        private void queueTab_VisibleChanged(object sender, EventArgs e)
+        {
+            PopulateQueuesGrid();
         }
     }
 }
