@@ -21,5 +21,10 @@ namespace Scribe.Studio.Logic
                 queue.Send(myMessage);
             }
         }
+
+        public static int CountMessages(string path)
+        {
+            return new MessageQueue(path).GetAllMessages().Count();
+        }
     }
 }

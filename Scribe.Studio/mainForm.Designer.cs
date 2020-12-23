@@ -50,6 +50,10 @@ namespace Scribe.Studio
             this.mainTab = new Syncfusion.Windows.Forms.Tools.ToolStripTabItem();
             this.queueGroup = new Syncfusion.Windows.Forms.Tools.ToolStripEx();
             this.addMessageQueueFromFileBtn = new System.Windows.Forms.ToolStripButton();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.jobsDropDown = new System.Windows.Forms.ToolStripDropDownButton();
+            this.statusProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl)).BeginInit();
             this.ribbonControl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.backstage)).BeginInit();
@@ -64,6 +68,7 @@ namespace Scribe.Studio
             this.panel1.SuspendLayout();
             this.mainTab.Panel.SuspendLayout();
             this.queueGroup.SuspendLayout();
+            this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // ribbonControl
@@ -90,7 +95,7 @@ namespace Scribe.Studio
             this.ribbonControl.QuickPanelVisible = false;
             this.ribbonControl.RibbonHeaderImage = Syncfusion.Windows.Forms.Tools.RibbonHeaderImage.None;
             this.ribbonControl.RibbonStyle = Syncfusion.Windows.Forms.Tools.RibbonStyle.Office2016;
-            this.ribbonControl.SelectedTab = null;
+            this.ribbonControl.SelectedTab = this.mainTab;
             this.ribbonControl.ShowRibbonDisplayOptionButton = true;
             this.ribbonControl.Size = new System.Drawing.Size(2053, 339);
             this.ribbonControl.SystemText.QuickAccessDialogDropDownName = "Start menu";
@@ -117,13 +122,14 @@ namespace Scribe.Studio
             this.backstage.Controls.Add(this.queueTab);
             this.backstage.Controls.Add(this.saveConfigBtn);
             this.backstage.Font = new System.Drawing.Font("Segoe UI", 8.25F);
-            this.backstage.ItemSize = new System.Drawing.Size(190, 40);
-            this.backstage.Location = new System.Drawing.Point(0, 103);
+            this.backstage.ItemSize = new System.Drawing.Size(60, 40);
+            this.backstage.Location = new System.Drawing.Point(0, 0);
             this.backstage.Name = "backstage";
             this.backstage.OfficeColorScheme = Syncfusion.Windows.Forms.Tools.ToolStripEx.ColorScheme.Managed;
             this.backstage.Size = new System.Drawing.Size(2053, 1443);
             this.backstage.TabIndex = 1;
             this.backstage.ThemeName = "BackStage2016Renderer";
+            this.backstage.Visible = false;
             // 
             // environmentTab
             // 
@@ -132,23 +138,23 @@ namespace Scribe.Studio
             this.environmentTab.Controls.Add(this.applicationMenuTabs);
             this.environmentTab.Image = null;
             this.environmentTab.ImageSize = new System.Drawing.Size(24, 24);
-            this.environmentTab.Location = new System.Drawing.Point(189, 0);
+            this.environmentTab.Location = new System.Drawing.Point(59, 0);
             this.environmentTab.Name = "environmentTab";
             this.environmentTab.Position = new System.Drawing.Point(11, 68);
             this.environmentTab.ShowCloseButton = true;
-            this.environmentTab.Size = new System.Drawing.Size(1864, 1443);
+            this.environmentTab.Size = new System.Drawing.Size(1994, 1443);
             this.environmentTab.TabIndex = 3;
             this.environmentTab.Text = "Environments";
             this.environmentTab.ThemesEnabled = false;
             // 
             // applicationMenuTabs
             // 
-            this.applicationMenuTabs.BeforeTouchSize = new System.Drawing.Size(1864, 1443);
+            this.applicationMenuTabs.BeforeTouchSize = new System.Drawing.Size(1994, 1443);
             this.applicationMenuTabs.Controls.Add(this.environmentsTab);
             this.applicationMenuTabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.applicationMenuTabs.Location = new System.Drawing.Point(0, 0);
             this.applicationMenuTabs.Name = "applicationMenuTabs";
-            this.applicationMenuTabs.Size = new System.Drawing.Size(1864, 1443);
+            this.applicationMenuTabs.Size = new System.Drawing.Size(1994, 1443);
             this.applicationMenuTabs.TabIndex = 0;
             this.applicationMenuTabs.ThemesEnabled = true;
             this.applicationMenuTabs.SelectedIndexChanged += new System.EventHandler(this.applicationMenuTabs_SelectedIndexChanged);
@@ -162,7 +168,7 @@ namespace Scribe.Studio
             this.environmentsTab.Location = new System.Drawing.Point(3, 38);
             this.environmentsTab.Name = "environmentsTab";
             this.environmentsTab.ShowCloseButton = true;
-            this.environmentsTab.Size = new System.Drawing.Size(1857, 1401);
+            this.environmentsTab.Size = new System.Drawing.Size(1987, 1401);
             this.environmentsTab.TabIndex = 1;
             this.environmentsTab.Text = "Environments";
             this.environmentsTab.ThemesEnabled = true;
@@ -175,7 +181,7 @@ namespace Scribe.Studio
             this.environmentsGrid.Location = new System.Drawing.Point(0, 0);
             this.environmentsGrid.Name = "environmentsGrid";
             this.environmentsGrid.PreviewRowHeight = 42;
-            this.environmentsGrid.Size = new System.Drawing.Size(1857, 1267);
+            this.environmentsGrid.Size = new System.Drawing.Size(1987, 1267);
             this.environmentsGrid.TabIndex = 1;
             this.environmentsGrid.QueryCellStyle += new Syncfusion.WinForms.DataGrid.Events.QueryCellStyleEventHandler(this.environmentsGrid_QueryCellStyle);
             this.environmentsGrid.CellDoubleClick += new Syncfusion.WinForms.DataGrid.Events.CellClickEventHandler(this.environmentsGrid_CellDoubleClick);
@@ -187,7 +193,7 @@ namespace Scribe.Studio
             this.environmentsTabBottonPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.environmentsTabBottonPanel.Location = new System.Drawing.Point(0, 1267);
             this.environmentsTabBottonPanel.Name = "environmentsTabBottonPanel";
-            this.environmentsTabBottonPanel.Size = new System.Drawing.Size(1857, 134);
+            this.environmentsTabBottonPanel.Size = new System.Drawing.Size(1987, 134);
             this.environmentsTabBottonPanel.TabIndex = 0;
             // 
             // addEnvironmentBtn
@@ -195,7 +201,7 @@ namespace Scribe.Studio
             this.addEnvironmentBtn.AccessibleName = "Button";
             this.addEnvironmentBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addEnvironmentBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F);
-            this.addEnvironmentBtn.Location = new System.Drawing.Point(1682, 3);
+            this.addEnvironmentBtn.Location = new System.Drawing.Point(1812, 3);
             this.addEnvironmentBtn.Name = "addEnvironmentBtn";
             this.addEnvironmentBtn.Size = new System.Drawing.Size(172, 81);
             this.addEnvironmentBtn.TabIndex = 1;
@@ -220,11 +226,11 @@ namespace Scribe.Studio
             this.queueTab.Controls.Add(this.panel1);
             this.queueTab.Image = null;
             this.queueTab.ImageSize = new System.Drawing.Size(24, 24);
-            this.queueTab.Location = new System.Drawing.Point(189, 0);
+            this.queueTab.Location = new System.Drawing.Point(59, 0);
             this.queueTab.Name = "queueTab";
             this.queueTab.Position = new System.Drawing.Point(69, 126);
             this.queueTab.ShowCloseButton = true;
-            this.queueTab.Size = new System.Drawing.Size(1864, 1443);
+            this.queueTab.Size = new System.Drawing.Size(1994, 1443);
             this.queueTab.TabIndex = 5;
             this.queueTab.Text = "Queues";
             this.queueTab.ThemesEnabled = false;
@@ -236,7 +242,7 @@ namespace Scribe.Studio
             this.queueList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.queueList.Location = new System.Drawing.Point(0, 0);
             this.queueList.Name = "queueList";
-            this.queueList.Size = new System.Drawing.Size(1864, 1309);
+            this.queueList.Size = new System.Drawing.Size(1994, 1309);
             this.queueList.TabIndex = 2;
             this.queueList.Text = "sfListView1";
             // 
@@ -247,7 +253,7 @@ namespace Scribe.Studio
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 1309);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1864, 134);
+            this.panel1.Size = new System.Drawing.Size(1994, 134);
             this.panel1.TabIndex = 1;
             // 
             // addQueueBtn
@@ -255,7 +261,7 @@ namespace Scribe.Studio
             this.addQueueBtn.AccessibleName = "Button";
             this.addQueueBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.addQueueBtn.Font = new System.Drawing.Font("Segoe UI Semibold", 9F);
-            this.addQueueBtn.Location = new System.Drawing.Point(1689, 3);
+            this.addQueueBtn.Location = new System.Drawing.Point(1819, 3);
             this.addQueueBtn.Name = "addQueueBtn";
             this.addQueueBtn.Size = new System.Drawing.Size(172, 81);
             this.addQueueBtn.TabIndex = 1;
@@ -277,9 +283,9 @@ namespace Scribe.Studio
             // 
             this.saveConfigBtn.Accelerator = "";
             this.saveConfigBtn.BackColor = System.Drawing.Color.Transparent;
-            this.saveConfigBtn.Location = new System.Drawing.Point(0, 104);
+            this.saveConfigBtn.Location = new System.Drawing.Point(40, 108);
             this.saveConfigBtn.Name = "saveConfigBtn";
-            this.saveConfigBtn.Size = new System.Drawing.Size(189, 45);
+            this.saveConfigBtn.Size = new System.Drawing.Size(188, 37);
             this.saveConfigBtn.TabIndex = 4;
             this.saveConfigBtn.Text = "Save configuration";
             this.saveConfigBtn.Click += new System.EventHandler(this.saveConfigBtn_Click);
@@ -329,11 +335,40 @@ namespace Scribe.Studio
             this.addMessageQueueFromFileBtn.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
             this.addMessageQueueFromFileBtn.Click += new System.EventHandler(this.addMessageQueueFromFileBtn_Click);
             // 
+            // statusStrip
+            // 
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.jobsDropDown,
+            this.statusProgressBar});
+            this.statusStrip.Location = new System.Drawing.Point(1, 1462);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(2053, 32);
+            this.statusStrip.TabIndex = 2;
+            this.statusStrip.Text = "statusStrip1";
+            // 
+            // jobsDropDown
+            // 
+            this.jobsDropDown.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.jobsDropDown.Image = ((System.Drawing.Image)(resources.GetObject("jobsDropDown.Image")));
+            this.jobsDropDown.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.jobsDropDown.Name = "jobsDropDown";
+            this.jobsDropDown.Size = new System.Drawing.Size(127, 29);
+            this.jobsDropDown.Text = "Current jobs";
+            // 
+            // statusProgressBar
+            // 
+            this.statusProgressBar.Name = "statusProgressBar";
+            this.statusProgressBar.Size = new System.Drawing.Size(100, 24);
+            this.statusProgressBar.Click += new System.EventHandler(this.statusProgressBar_Click);
+            this.statusProgressBar.DoubleClick += new System.EventHandler(this.statusProgressBar_DoubleClick);
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2055, 1495);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.backstage);
             this.Controls.Add(this.ribbonControl);
             this.Name = "mainForm";
@@ -357,7 +392,10 @@ namespace Scribe.Studio
             this.mainTab.Panel.PerformLayout();
             this.queueGroup.ResumeLayout(false);
             this.queueGroup.PerformLayout();
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -382,6 +420,10 @@ namespace Scribe.Studio
         private Syncfusion.WinForms.Controls.SfButton addQueueBtn;
         private Syncfusion.WinForms.Controls.SfButton removeQueueBtn;
         private Syncfusion.WinForms.ListView.SfListView queueList;
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripDropDownButton jobsDropDown;
+        private System.Windows.Forms.ToolStripProgressBar statusProgressBar;
+        private System.ComponentModel.BackgroundWorker backgroundWorker;
     }
 }
 
