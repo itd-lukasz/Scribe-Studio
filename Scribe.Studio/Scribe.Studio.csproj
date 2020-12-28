@@ -72,6 +72,12 @@
     <Compile Include="Configuration Forms\environmentForm.Designer.cs">
       <DependentUpon>environmentForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logs Forms\gridForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Logs Forms\gridForm.Designer.cs">
+      <DependentUpon>gridForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="mainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,8 +104,17 @@
     <Compile Include="Queue Forms\importMessageForm.Designer.cs">
       <DependentUpon>importMessageForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="selectEnvironmentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="selectEnvironmentForm.Designer.cs">
+      <DependentUpon>selectEnvironmentForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Configuration Forms\environmentForm.resx">
       <DependentUpon>environmentForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Logs Forms\gridForm.resx">
+      <DependentUpon>gridForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="mainForm.resx">
       <DependentUpon>mainForm.cs</DependentUpon>
@@ -121,6 +136,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Queue Forms\importMessageForm.resx">
       <DependentUpon>importMessageForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="selectEnvironmentForm.resx">
+      <DependentUpon>selectEnvironmentForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

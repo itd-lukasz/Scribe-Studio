@@ -54,6 +54,9 @@ namespace Scribe.Studio
             this.jobsDropDown = new System.Windows.Forms.ToolStripDropDownButton();
             this.statusProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.backgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.scribeLogsGroup = new Syncfusion.Windows.Forms.Tools.ToolStripEx();
+            this.browseScribeLogsBtn = new System.Windows.Forms.ToolStripButton();
+            this.tabbedMDIManager = new Syncfusion.Windows.Forms.Tools.TabbedMDIManager(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl)).BeginInit();
             this.ribbonControl.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.backstage)).BeginInit();
@@ -69,6 +72,7 @@ namespace Scribe.Studio
             this.mainTab.Panel.SuspendLayout();
             this.queueGroup.SuspendLayout();
             this.statusStrip.SuspendLayout();
+            this.scribeLogsGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // ribbonControl
@@ -297,6 +301,7 @@ namespace Scribe.Studio
             // ribbonControl.ribbonPanel1
             // 
             this.mainTab.Panel.Controls.Add(this.queueGroup);
+            this.mainTab.Panel.Controls.Add(this.scribeLogsGroup);
             this.mainTab.Panel.Name = "ribbonPanel1";
             this.mainTab.Panel.ScrollPosition = 0;
             this.mainTab.Panel.TabIndex = 2;
@@ -363,6 +368,41 @@ namespace Scribe.Studio
             this.statusProgressBar.Click += new System.EventHandler(this.statusProgressBar_Click);
             this.statusProgressBar.DoubleClick += new System.EventHandler(this.statusProgressBar_DoubleClick);
             // 
+            // scribeLogsGroup
+            // 
+            this.scribeLogsGroup.Dock = System.Windows.Forms.DockStyle.None;
+            this.scribeLogsGroup.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.scribeLogsGroup.ForeColor = System.Drawing.Color.MidnightBlue;
+            this.scribeLogsGroup.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.scribeLogsGroup.Image = null;
+            this.scribeLogsGroup.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.scribeLogsGroup.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.browseScribeLogsBtn});
+            this.scribeLogsGroup.Location = new System.Drawing.Point(205, 1);
+            this.scribeLogsGroup.Name = "scribeLogsGroup";
+            this.scribeLogsGroup.Office12Mode = false;
+            this.scribeLogsGroup.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.scribeLogsGroup.Size = new System.Drawing.Size(179, 231);
+            this.scribeLogsGroup.TabIndex = 1;
+            // 
+            // browseScribeLogsBtn
+            // 
+            this.browseScribeLogsBtn.Image = ((System.Drawing.Image)(resources.GetObject("browseScribeLogsBtn.Image")));
+            this.browseScribeLogsBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.browseScribeLogsBtn.Name = "browseScribeLogsBtn";
+            this.browseScribeLogsBtn.Size = new System.Drawing.Size(124, 206);
+            this.browseScribeLogsBtn.Text = "Scribe Logs";
+            this.browseScribeLogsBtn.Click += new System.EventHandler(this.browseScribeLogsBtn_Click);
+            // 
+            // tabbedMDIManager
+            // 
+            this.tabbedMDIManager.AttachedTo = this;
+            this.tabbedMDIManager.CloseButtonBackColor = System.Drawing.Color.White;
+            this.tabbedMDIManager.CloseButtonToolTip = "";
+            this.tabbedMDIManager.DropDownButtonToolTip = "";
+            this.tabbedMDIManager.ImageSize = new System.Drawing.Size(16, 16);
+            this.tabbedMDIManager.NeedUpdateHostedForm = false;
+            // 
             // mainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -371,6 +411,8 @@ namespace Scribe.Studio
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.backstage);
             this.Controls.Add(this.ribbonControl);
+            this.Cursor = System.Windows.Forms.Cursors.Default;
+            this.IsMdiContainer = true;
             this.Name = "mainForm";
             this.Padding = new System.Windows.Forms.Padding(1, 0, 1, 1);
             this.ShowApplicationIcon = false;
@@ -394,6 +436,8 @@ namespace Scribe.Studio
             this.queueGroup.PerformLayout();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
+            this.scribeLogsGroup.ResumeLayout(false);
+            this.scribeLogsGroup.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -424,6 +468,9 @@ namespace Scribe.Studio
         private System.Windows.Forms.ToolStripDropDownButton jobsDropDown;
         private System.Windows.Forms.ToolStripProgressBar statusProgressBar;
         private System.ComponentModel.BackgroundWorker backgroundWorker;
+        private Syncfusion.Windows.Forms.Tools.ToolStripEx scribeLogsGroup;
+        private System.Windows.Forms.ToolStripButton browseScribeLogsBtn;
+        private Syncfusion.Windows.Forms.Tools.TabbedMDIManager tabbedMDIManager;
     }
 }
 

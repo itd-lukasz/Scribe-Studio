@@ -1,5 +1,6 @@
 ﻿using Scribe.Studio.Configuration_Forms;
 using Scribe.Studio.Logic;
+using Scribe.Studio.Logs_Forms;
 using Scribe.Studio.Progress_Forms;
 using Scribe.Studio.Queue_Forms;
 using Syncfusion.Windows.Forms;
@@ -209,6 +210,19 @@ namespace Scribe.Studio
                 Job job = (Job)((ToolStripProgressBar)sender).Tag;
                 progressForm progressForm = new progressForm(job);
                 progressForm.Show();
+            }
+        }
+
+        private void browseScribeLogsBtn_Click(object sender, EventArgs e)
+        {
+            selectEnvironmentForm selectEnvironment = new selectEnvironmentForm();
+            if (selectEnvironment.ShowDialog() == DialogResult.OK)
+            {
+                gridForm grid = new gridForm(selectEnvironment.GetEnvironment())
+                {
+                    MdiParent = this
+                };
+                grid.Show();
             }
         }
     }
