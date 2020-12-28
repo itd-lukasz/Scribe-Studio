@@ -44,7 +44,7 @@ namespace Scribe.Studio.Queue_Forms
             this.nameGroup.Dock = System.Windows.Forms.DockStyle.Top;
             this.nameGroup.Location = new System.Drawing.Point(2, 2);
             this.nameGroup.Name = "nameGroup";
-            this.nameGroup.Size = new System.Drawing.Size(635, 61);
+            this.nameGroup.Size = new System.Drawing.Size(647, 61);
             this.nameGroup.TabIndex = 0;
             this.nameGroup.TabStop = false;
             this.nameGroup.Text = "Queue name:";
@@ -75,7 +75,7 @@ namespace Scribe.Studio.Queue_Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(639, 192);
+            this.ClientSize = new System.Drawing.Size(651, 226);
             this.Controls.Add(this.saveBtn);
             this.Controls.Add(this.nameGroup);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
