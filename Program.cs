@@ -14,7 +14,7 @@ namespace binanceBotNetCore
             for (int i = 0; i<10; i++)
             {
                 prices = BinanceApi.GetInterestingCurrenciesAsync(prices);
-                Thread.Sleep(5000);
+                Thread.Sleep(15000);
             }
         }
     }

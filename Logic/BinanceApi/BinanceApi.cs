@@ -11,7 +11,8 @@ using Newtonsoft.Json.Linq;
 
 namespace binanceBotNetCore.Logic.BinanceApi
 {
-    public static class BinanceApi{
+    public static class BinanceApi
+    {
 
         public static List<Price> GetInterestingCurrenciesAsync(List<Price> prices)
         {
@@ -28,21 +29,38 @@ namespace binanceBotNetCore.Logic.BinanceApi
             {
                 prices.AddRange(JsonConvert.DeserializeObject<List<Price>>(resp.Result));
             }
+            prices = prices.Where(s => s.symbol.ToLower().Contains("usdt")).ToList();
             prices = prices.OrderBy(p => p.symbol).ThenByDescending(p => p.time).ToList();
+            List<string> dates = prices.Select(s => s.time.ToLongTimeString()).Distinct().ToList();
+            dates = dates.OrderByDescending(s => s).ToList();
+            foreach(string date in dates)
+            {
+                Console.WriteLine(date);
+            }
+            if (dates.Count > 6)
+            {
+                prices = prices.Where(p => p.time.ToLongTimeString() != dates[6]).ToList();
+            }
             DataFrame df = new DataFrame();
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("index"));
             df.Columns.Add(new StringDataFrameColumn("symbol"));
             df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("price"));
             df.Columns.Add(new PrimitiveDataFrameColumn<DateTime>("time"));
+            df.Columns.Add(new StringDataFrameColumn("direction"));
+            int index = 0;
             foreach (Price price in prices)
             {
                 df.Append(new List<KeyValuePair<string, object>>(){
+                    new KeyValuePair<string, object>("index", index),
                     new KeyValuePair<string, object>("symbol", price.symbol),
                     new KeyValuePair<string, object>("price", price.price),
-                    new KeyValuePair<string, object>("time", price.time)}, true);
+                    new KeyValuePair<string, object>("time", price.time),
+                    new KeyValuePair<string, object>("direction", "n/a")}, true);
+                index++;
             }
+            df.CountDirection();
+            df.FindBestCurrencies();
             df.PrettyPrint();
-            // JObject json = JObject.Parse(resp.Result);
-            // System.Console.WriteLine(json);
             return prices;
         }
 
