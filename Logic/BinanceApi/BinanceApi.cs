@@ -14,14 +14,14 @@ namespace binanceBotNetCore.Logic.BinanceApi
     public static class BinanceApi
     {
 
-        public static void GetCurrentPrice(string symbol)
+        public static Price GetCurrentPrice(string symbol)
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = client.GetAsync($"https://testnet.binance.com/api/v1/ticker/price?symbol={symbol}").Result;
             var resp = response.Content.ReadAsStringAsync();
-            Price price = JsonConvert.DeserializeObject<Price>(resp.Result);
+            return JsonConvert.DeserializeObject<Price>(resp.Result);
         }
 
         public static List<Price> GetInterestingCurrenciesAsync(List<Price> prices)
@@ -69,6 +69,10 @@ namespace binanceBotNetCore.Logic.BinanceApi
             if (df.Rows.Count > 0)
             {
                 df.PrettyPrint();
+                foreach(DataFrameRow row in df.Rows)
+                {
+                    Console.WriteLine(GetCurrentPrice(row[0].ToString()));
+                }
             }
             return prices;
         }
