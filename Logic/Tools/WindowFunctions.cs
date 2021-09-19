@@ -44,7 +44,7 @@ namespace binanceBotNetCore.Logic.Tools
             }
         }
 
-        public static void FindBestCurrencies(this DataFrame df)
+        public static DataFrame FindBestCurrencies(this DataFrame df)
         {
             DataFrame currencies = df.Columns["symbol"].ValueCounts();
             int index = 0;
@@ -56,11 +56,7 @@ namespace binanceBotNetCore.Logic.Tools
                 index++;
             }
             currencies = currencies.Filter(currencies.Columns["Counts"].ElementwiseGreaterThan(4));
-            currencies.PrettyPrint();
-            if (currencies.Rows.Count > 0)
-            {
-                Console.ReadKey();
-            }
+            return currencies;
         }
     }
 }

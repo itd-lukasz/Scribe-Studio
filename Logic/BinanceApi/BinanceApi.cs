@@ -33,10 +33,6 @@ namespace binanceBotNetCore.Logic.BinanceApi
             prices = prices.OrderBy(p => p.symbol).ThenByDescending(p => p.time).ToList();
             List<string> dates = prices.Select(s => s.time.ToLongTimeString()).Distinct().ToList();
             dates = dates.OrderByDescending(s => s).ToList();
-            foreach(string date in dates)
-            {
-                Console.WriteLine(date);
-            }
             if (dates.Count > 6)
             {
                 prices = prices.Where(p => p.time.ToLongTimeString() != dates[6]).ToList();
@@ -59,8 +55,11 @@ namespace binanceBotNetCore.Logic.BinanceApi
                 index++;
             }
             df.CountDirection();
-            df.FindBestCurrencies();
-            df.PrettyPrint();
+            df = df.FindBestCurrencies();
+            if (df.Rows.Count > 0)
+            {
+                df.PrettyPrint();
+            }
             return prices;
         }
 

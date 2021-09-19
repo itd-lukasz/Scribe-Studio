@@ -11,10 +11,15 @@ namespace binanceBotNetCore
         {
             Console.WriteLine("Binance Bot .Net Core");
             List<Price> prices = new List<Price>();
-            for (int i = 0; i<10; i++)
+            DateTime startTime = DateTime.Now;
+            DateTime endTime = startTime.AddMinutes(30);
+            Console.WriteLine($"Start time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
+            while (startTime < endTime)
             {
+                Console.WriteLine($"Current time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
                 prices = BinanceApi.GetInterestingCurrenciesAsync(prices);
-                Thread.Sleep(15000);
+                Thread.Sleep(10000);
+                startTime = DateTime.Now;
             }
         }
     }
