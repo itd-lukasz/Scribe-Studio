@@ -14,6 +14,16 @@ namespace binanceBotNetCore.Logic.BinanceApi
     public static class BinanceApi
     {
 
+        public static void GetCurrentPrice(string symbol)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = client.GetAsync($"https://testnet.binance.com/api/v1/ticker/price?symbol={symbol}").Result;
+            var resp = response.Content.ReadAsStringAsync();
+            Price price = JsonConvert.DeserializeObject<Price>(resp.Result);
+        }
+
         public static List<Price> GetInterestingCurrenciesAsync(List<Price> prices)
         {
             HttpClient client = new HttpClient();
