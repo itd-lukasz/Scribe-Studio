@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using binanceBotNetCore.Logic.BinanceApi;
@@ -13,6 +14,17 @@ namespace binanceBotNetCore.Logic.BinanceApi
 {
     public static class BinanceApi
     {
+        public static void DownloadFile(string symbol, string interval, DateTime date)
+        {
+            WebClient client = new WebClient();
+            client.DownloadFile($"https://data.binance.vision/data/spot/daily/klines/{symbol}/{interval}/{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip", $"sources/download/{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip");
+            UnzipFile($"{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip");
+        }
+
+        private static void UnzipFile(string file)
+        {
+            System.IO.Compression.ZipFile.ExtractToDirectory($"sources/download/{file}", $"sources");
+        }
 
         public static Price GetCurrentPrice(string symbol)
         {
