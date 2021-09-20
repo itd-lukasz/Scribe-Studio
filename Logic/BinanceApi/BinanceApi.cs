@@ -23,7 +23,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
 
         private static void UnzipFile(string file)
         {
-            System.IO.Compression.ZipFile.ExtractToDirectory($"sources/download/{file}", $"sources");
+            System.IO.Compression.ZipFile.ExtractToDirectory($"sources/download/{file}", $"sources", true);
         }
 
         public static Price GetCurrentPrice(string symbol)
