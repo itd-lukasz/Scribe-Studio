@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using binanceBotNetCore.Logic.BinanceApi;
 using binanceBotNetCore.Logic.Helpers;
 using Microsoft.Data.Analysis;
@@ -9,11 +10,12 @@ namespace binanceBotNetCore.Logic.Engine
 {
     public static class Core
     {
-        public static void ProcessCurrency(string currency)
+        async public static Task ProcessCurrencyAsync(string currency)
         {
             if (!File.Exists(string.Format($"sources/{currency}-1m-{DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")}.csv")))
             {
-                DownloadCurrency(currency, "1m");
+                Console.WriteLine($"Downloading currency {currency}");
+                await Task.Run(() => DownloadCurrencyAsync(currency, "1m"));
             }
             if (!File.Exists(string.Format($"data/{currency}-1m.csv")))
             {
@@ -32,15 +34,17 @@ namespace binanceBotNetCore.Logic.Engine
                     df.Append(local_df.Rows);
                 }
                 DataFrame.WriteCsv(df, $"data/{currency}-1m.csv", '|');
+                Console.WriteLine($"Data for {currency} ready!");
             }
             else
             {
                 DataFrame df = DataFrame.LoadCsv($"data/{currency}-1m.csv", '|');
-                Console.WriteLine(df.Rows);
+                Console.WriteLine($"Data for {currency} restored!");
+                
             }
         }
 
-        private static void DownloadCurrency(string currency, string interval)
+        async private static void DownloadCurrencyAsync(string currency, string interval)
         {
             for (int i = 1; i < 32; i++)
             {

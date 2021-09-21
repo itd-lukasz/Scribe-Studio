@@ -4,7 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 using binanceBotNetCore.Logic.BinanceApi;
+using binanceBotNetCore.Logic.Helpers;
 using binanceBotNetCore.Logic.Tools;
 using Microsoft.Data.Analysis;
 using Newtonsoft.Json;
@@ -14,10 +18,66 @@ namespace binanceBotNetCore.Logic.BinanceApi
 {
     public static class BinanceApi
     {
+        private static string GetHexString(byte[] bytes)
+        {
+            var builder = new StringBuilder(bytes.Length * 2);
+            foreach (var b in bytes)
+            {
+                builder.Append($"{b:x2}");
+            }
+            return builder.ToString();
+        }
+
+        private static byte[] Sign(string secret, string content)
+        {
+            var signedBytes = new HMACSHA256(Encoding.UTF8.GetBytes(secret))
+                .ComputeHash(Encoding.UTF8.GetBytes(content));
+            return signedBytes;
+        }
+
+        public static void CreateOrder(string symbol, decimal quantity)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            // client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8");
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "YnRuuGGYr1IPoPg9uP8kuInXiTVOpPdBVUn0zQ14fBxxU9DCwavqsa5MwxFxkZk7");
+            //HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8"));
+            HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg"));
+            long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var signedBytes = Sign("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg", $"symbol={symbol}&side=BUY&type=MARKET&quantity={quantity}&timestamp={ts}");
+            HttpResponseMessage response = client.PostAsync($"https://testnet.binance.vision/api/v3/order?symbol={symbol}&side=BUY&type=MARKET&quantity={quantity}&timestamp={ts}&signature={GetHexString(signedBytes)}", null).Result;
+            var resp = response.Content.ReadAsStringAsync();
+            Console.WriteLine(resp.Result);
+            Console.WriteLine(response.Headers.ToString());
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.Content);
+        }
+
+        public static void AccountStatus()
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            // client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8");
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "YnRuuGGYr1IPoPg9uP8kuInXiTVOpPdBVUn0zQ14fBxxU9DCwavqsa5MwxFxkZk7");
+            //HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8"));
+            HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg"));
+            long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var signedBytes = Sign("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg", $"timestamp={ts}");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = client.GetAsync($"https://testnet.binance.vision/api/v3/account?timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
+            var resp = response.Content.ReadAsStringAsync();
+            Console.WriteLine(resp.Result);
+            Console.WriteLine(response.Headers.ToString());
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.Content);
+        }
+
         public static void DownloadFile(string symbol, string interval, DateTime date)
         {
             WebClient client = new WebClient();
-            client.DownloadFile($"https://data.binance.vision/data/spot/daily/klines/{symbol}/{interval}/{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip", $"sources/download/{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip");
+            client.DownloadFile(new Uri($"https://data.binance.vision/data/spot/daily/klines/{symbol}/{interval}/{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip"), $"sources/download/{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip");
             UnzipFile($"{symbol}-{interval}-{date.ToString("yyyy-MM-dd")}.zip");
         }
 
@@ -36,7 +96,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             return JsonConvert.DeserializeObject<Price>(resp.Result);
         }
 
-        public static List<Price> GetInterestingCurrenciesAsync(List<Price> prices)
+        public static List<Price> GetInterestingCurrenciesAsync(List<Price> prices, Account account)
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
@@ -81,9 +141,13 @@ namespace binanceBotNetCore.Logic.BinanceApi
             if (df.Rows.Count > 0)
             {
                 df.PrettyPrint();
-                foreach(DataFrameRow row in df.Rows)
+                for(index = 0; index < df.Rows.Count; index++)
                 {
-                    Console.WriteLine(GetCurrentPrice(row[0].ToString()));
+                    if (!account.UnderChecking.Contains(df[index, 0].ToString()) && !df[index, 0].ToString().EndsWith("DOWNUSDT"))
+                    {
+                        account.UnderChecking.Add(df[index, 0].ToString());
+                        account.ProcessCurrenciesAsync();
+                    }
                 }
             }
             return prices;
