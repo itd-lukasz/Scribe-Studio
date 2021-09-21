@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace binanceBotNetCore.Logic.Helpers
 {
@@ -7,21 +9,42 @@ namespace binanceBotNetCore.Logic.Helpers
     {
         public decimal BalanceUSDT { get; set; }
         public List<WalletPosition> Wallet { get; set; }
+        public List<string> UnderChecking { get; set; }
 
         public Account()
         {
             BalanceUSDT = 100;
+            UnderChecking = new List<string>();
             LoadAccount();
         }
 
         public void SaveAccount()
         {
-            throw new NotImplementedException();
+            string this_class = JsonConvert.SerializeObject(this);
+            StreamWriter sw = new StreamWriter("account.json");
+            sw.Write(this_class);
+            sw.Close();
         }
 
         private void LoadAccount()
         {
-            throw new NotImplementedException();
+            try
+            {
+                StreamReader sr = new StreamReader("account.json");
+                Account acccount = JsonConvert.DeserializeObject<Account>(sr.ReadToEnd());
+                BalanceUSDT = acccount.BalanceUSDT;
+                Wallet = acccount.Wallet;
+            }
+            catch(Exception exc)
+            {
+                Console.WriteLine("Account restoring failed!");
+                Console.WriteLine(exc.Message);
+                Console.WriteLine("-------------------------");
+                Console.WriteLine("Press any key to continue");
+                Console.WriteLine("-------------------------");
+                Console.ReadKey();
+                Console.WriteLine();
+            }
         }
     }
 }
