@@ -17,6 +17,9 @@ namespace binanceBotNetCore
         {
             //binanceBotNetCore.Logic.BinanceApi.BinanceApi.AccountStatus();
             //binanceBotNetCore.Logic.BinanceApi.BinanceApi.CreateOrder("ETHUSDT", 1);
+            binanceBotNetCore.Logic.BinanceApi.BinanceApi.GetCurrentPrice("IDEXUSDT");
+            Console.WriteLine("-----");
+            binanceBotNetCore.Logic.BinanceApi.BinanceApi.GetKlinesDataFrame("IDEXUSDT", "1m");
             MainAsync().Wait();
             // or, if you want to avoid exceptions being wrapped into AggregateException:
             //  MainAsync().GetAwaiter().GetResult();
@@ -47,10 +50,20 @@ namespace binanceBotNetCore
             Console.WriteLine($"Start time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
             while (startTime < endTime)
             {
-                Console.WriteLine($"Current time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
-                prices = BinanceApi.GetInterestingCurrenciesAsync(prices, account);
-                startTime = DateTime.Now;
-                Thread.Sleep(10000);
+                try
+                {
+                    Console.WriteLine($"Current time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
+                    prices = BinanceApi.GetInterestingCurrenciesAsync(prices, account);
+                    startTime = DateTime.Now;
+                    Thread.Sleep(10000);
+                }
+                catch (Exception exc)
+                {
+                    Console.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    Console.WriteLine("Exception in main method!");
+                    Console.WriteLine(exc.Message);
+                    Console.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                }
             }
             account.SaveAccount();
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using binanceBotNetCore.Logic.Engine;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace binanceBotNetCore.Logic.Helpers
 
         async public void ProcessCurrenciesAsync()
         {
-            foreach(string currency in UnderChecking)
+            foreach(string currency in UnderChecking.Distinct().ToList())
             {
                 Console.WriteLine($"Processing currency {currency}");
                 Task.Run(()=> Core.ProcessCurrencyAsync(currency));

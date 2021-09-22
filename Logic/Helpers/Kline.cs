@@ -114,5 +114,94 @@ namespace binanceBotNetCore.Logic.Helpers
             }
             return df;
         }
+    
+        public static DataFrame ParseList(List<Kline> klines, string currency)
+        {
+            DataFrame df = new DataFrame();
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("index")); //0
+            df.Columns.Add(new PrimitiveDataFrameColumn<Int64>("OpenTime")); //1
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("Open")); //2
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("High")); //3
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("Low"));  //4
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("Close")); //5
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("Volume")); //6
+            df.Columns.Add(new PrimitiveDataFrameColumn<Int64>("CloseTime")); //7
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("QuoteAssetVolume")); //8
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("NumberOfTrades")); //9
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("TakerBuyBaseAssetVolume")); //10
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("TakerBuyQuoteAssetVolume")); //11
+            df.Columns.Add(new PrimitiveDataFrameColumn<DateTime>("StartTime")); //12
+            df.Columns.Add(new PrimitiveDataFrameColumn<DateTime>("EndTime"));  //13
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("SumOpenClose"));  //14
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("SumHighLow")); //15
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentHighLow")); //16
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentOpenClose")); //17
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentHighLowOneMinuteAgo")); //18
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentOpenCloseOneMinuteAgo")); //19
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentHighLowTwoMinuteAgo")); //20
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentOpenCloseTwoMinuteAgo")); //21
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentHighLowThreeMinuteAgo")); //22
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentOpenCloseThreeMinuteAgo")); //23
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentHighLowFourMinuteAgo")); //24
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentOpenCloseFourMinuteAgo")); //25
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentHighLowFiveMinuteAgo")); //26
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("PercentOpenCloseFiveMinuteAgo")); //27
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("OpenOneMinuteAgo")); //28
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("CloseOneMinuteAgo")); //29
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("OpenTwoMinuteAgo")); //30
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("CloseTwoMinuteAgo")); //31
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("OpenThreeMinuteAgo")); //32
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("CloseThreeMinuteAgo")); //33
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("OpenFourMinuteAgo")); //34
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("CloseFourMinuteAgo")); //35
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("OpenFiveMinuteAgo")); //36
+            df.Columns.Add(new PrimitiveDataFrameColumn<decimal>("CloseFiveMinuteAgo")); //37
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("UpMinuteAgo")); //38
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("UpTwoMinuteAgo")); //39
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("UpThreeMinuteAgo")); //40
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("UpFourMinuteAgo")); //41
+            df.Columns.Add(new PrimitiveDataFrameColumn<int>("UpFiveMinuteAgo")); //42
+            df.Columns.Add(new StringDataFrameColumn("Currency")); //43
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("ShouldBuy")); //44
+            df.Columns.Add(new StringDataFrameColumn("BinaryData")); //45
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_One_Minute_Ago")); //46
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Two_Minute_Ago")); //47
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Three_Minute_Ago")); //48
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Four_Minute_Ago")); //49
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Five_Minute_Ago")); //50
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_One_Minute_Ago")); //51
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Two_Minute_Ago")); //52
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Three_Minute_Ago")); //53
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Four_Minute_Ago")); //54
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Five_Minute_Ago")); //55
+            int index = 0;
+            foreach(Kline kline in klines)
+            {
+                df = df.Append(new List<KeyValuePair<string, object>>(){
+                    new KeyValuePair<string, object>("index", index),
+                    new KeyValuePair<string, object>("OpenTime", kline.OpenTime),
+                    new KeyValuePair<string, object>("Open", kline.Open),
+                    new KeyValuePair<string, object>("High", kline.High),
+                    new KeyValuePair<string, object>("Low", kline.Low),
+                    new KeyValuePair<string, object>("Close", kline.Close),
+                    new KeyValuePair<string, object>("Volume", kline.Volume),
+                    new KeyValuePair<string, object>("CloseTime", kline.CloseTime),
+                    new KeyValuePair<string, object>("QuoteAssetVolume", kline.QuoteAssetVolume),
+                    new KeyValuePair<string, object>("NumberOfTrades", kline.NumberOfTrades),
+                    new KeyValuePair<string, object>("TakerBuyBaseAssetVolume", kline.TakerBuyBaseAssetVolume),
+                    new KeyValuePair<string, object>("TakerBuyQuoteAssetVolume", kline.TakerBuyQuoteAssetVolume),
+                    new KeyValuePair<string, object>("StartTime", DataFrameUtils.UnixTimeStampToDateTime(kline.OpenTime)),
+                    new KeyValuePair<string, object>("EndTime", DataFrameUtils.UnixTimeStampToDateTime(kline.CloseTime)),
+                    new KeyValuePair<string, object>("SumOpenClose", Convert.ToDecimal(kline.Close - kline.Open)),
+                    new KeyValuePair<string, object>("SumHighLow", Convert.ToDecimal(kline.High - kline.Low)),
+                    new KeyValuePair<string, object>("PercentHighLow", ((Convert.ToDecimal(kline.High / kline.Low)) -1 ) * 100),
+                    new KeyValuePair<string, object>("PercentOpenClose", ((Convert.ToDecimal(kline.Close / kline.Open)) -1 ) * 100),
+                    new KeyValuePair<string, object>("ShouldBuy", kline.Close > kline.Open),
+                    new KeyValuePair<string, object>("Currency", currency)
+                });
+                index++;
+            }
+            return df;
+        }
     }
 }

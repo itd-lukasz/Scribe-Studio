@@ -93,7 +93,52 @@ namespace binanceBotNetCore.Logic.BinanceApi
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = client.GetAsync($"https://testnet.binance.com/api/v1/ticker/price?symbol={symbol}").Result;
             var resp = response.Content.ReadAsStringAsync();
+            Console.WriteLine(resp.Result);
             return JsonConvert.DeserializeObject<Price>(resp.Result);
+        }
+
+        public static DataFrame GetKlinesDataFrame(string symbol, string interval)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = client.GetAsync($"https://testnet.binance.com/api/v3/klines?limit=10&symbol={symbol}&interval={interval}").Result;
+            var resp = response.Content.ReadAsStringAsync();
+            string array = resp.Result;
+            array = array.Replace("[[", "[");
+            array = array.Replace("]]", "]");
+            List<Kline> klines = new List<Kline>();
+            foreach(string item in array.Split(new string[] {"],["}, StringSplitOptions.None))
+            {
+                List<string> fields = new List<string>();
+                if (item.StartsWith("["))
+                {
+                    fields = item.Remove(0, 1).Split(",").ToList();
+                }
+                if (item.EndsWith("]"))
+                {
+                    fields = item.Substring(0, item.Length - 2).Split(",").ToList();
+                }
+                if (!item.StartsWith("[") && !item.EndsWith("]"))
+                {
+                    fields = item.Split(",").ToList();
+                }
+                klines.Add(new Kline()
+                {
+                    OpenTime = Convert.ToInt64(fields[0].Replace("\"", "").Replace(".", ",")),
+                    Open = Convert.ToDecimal(fields[1].Replace("\"", "").Replace(".", ",")),
+                    High = Convert.ToDecimal(fields[2].Replace("\"", "").Replace(".", ",")),
+                    Low = Convert.ToDecimal(fields[3].Replace("\"", "").Replace(".", ",")),
+                    Close = Convert.ToDecimal(fields[4].Replace("\"", "").Replace(".", ",")),
+                    Volume = Convert.ToDecimal(fields[5].Replace("\"", "").Replace(".", ",")),
+                    CloseTime = Convert.ToInt64(fields[6].Replace("\"", "").Replace(".", ",")),
+                    QuoteAssetVolume = Convert.ToDecimal(fields[7].Replace("\"", "").Replace(".", ",")),
+                    NumberOfTrades = Convert.ToInt32(fields[8].Replace("\"", "").Replace(".", ",")),
+                    TakerBuyBaseAssetVolume = Convert.ToDecimal(fields[9].Replace("\"", "").Replace(".", ",")),
+                    TakerBuyQuoteAssetVolume = Convert.ToDecimal(fields[10].Replace("\"", "").Replace(".", ","))
+                });
+            }
+            return Kline.ParseList(klines, symbol);
         }
 
         public static List<Price> GetInterestingCurrenciesAsync(List<Price> prices, Account account)
@@ -146,6 +191,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
                     if (!account.UnderChecking.Contains(df[index, 0].ToString()) && !df[index, 0].ToString().EndsWith("DOWNUSDT"))
                     {
                         account.UnderChecking.Add(df[index, 0].ToString());
+                        account.UnderChecking = account.UnderChecking.Distinct().ToList();
                         account.ProcessCurrenciesAsync();
                     }
                 }
