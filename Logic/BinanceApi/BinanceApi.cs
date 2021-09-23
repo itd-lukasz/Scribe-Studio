@@ -18,6 +18,14 @@ namespace binanceBotNetCore.Logic.BinanceApi
 {
     public static class BinanceApi
     {
+        static string host = "testnet.binance.vision";
+        //test values:
+        static string apiKey = "YnRuuGGYr1IPoPg9uP8kuInXiTVOpPdBVUn0zQ14fBxxU9DCwavqsa5MwxFxkZk7";
+        static string secret = "jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg";
+        //prod values:
+        //static string apiKey = "soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8";
+        //static string secret = "jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg";
+
         private static string GetHexString(byte[] bytes)
         {
             var builder = new StringBuilder(bytes.Length * 2);
@@ -35,18 +43,62 @@ namespace binanceBotNetCore.Logic.BinanceApi
             return signedBytes;
         }
 
-        public static void CreateOrder(string symbol, decimal quantity)
+        public static Order CreateOrder(string symbol, decimal quantity, decimal price, string side = "")
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
-            // client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8");
-            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "YnRuuGGYr1IPoPg9uP8kuInXiTVOpPdBVUn0zQ14fBxxU9DCwavqsa5MwxFxkZk7");
-            //HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8"));
-            HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg"));
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
             long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var signedBytes = Sign("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg", $"symbol={symbol}&side=BUY&type=MARKET&quantity={quantity}&timestamp={ts}");
-            HttpResponseMessage response = client.PostAsync($"https://testnet.binance.vision/api/v3/order?symbol={symbol}&side=BUY&type=MARKET&quantity={quantity}&timestamp={ts}&signature={GetHexString(signedBytes)}", null).Result;
+            if (side == "BUY" || side == "")
+            {
+                var signedBytes = Sign(secret, $"symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
+                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
+                var resp = response.Content.ReadAsStringAsync();
+                if (resp.Result.ToLower().Contains("code"))
+                {
+                    Console.WriteLine(resp.Result);
+                    Console.WriteLine(response.Headers.ToString());
+                    Console.WriteLine(response.StatusCode);
+                    Console.WriteLine(response.Content);
+                    throw new InvalidOperationException("Operation failed!");
+                }
+                else
+                {
+                    return JsonConvert.DeserializeObject<Order>(resp.Result);
+                }
+            }
+            if (side =="SELL")
+            {
+                var signedBytes = Sign(secret, $"symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
+                Console.WriteLine($"https://{host}/api/v3/order?symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}");
+                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
+                var resp = response.Content.ReadAsStringAsync();
+                if (resp.Result.ToLower().Contains("code"))
+                {
+                    Console.WriteLine(resp.Result);
+                    Console.WriteLine(response.Headers.ToString());
+                    Console.WriteLine(response.StatusCode);
+                    Console.WriteLine(response.Content);
+                    throw new InvalidOperationException("Operation failed!");
+                }
+                else
+                {
+                    return JsonConvert.DeserializeObject<Order>(resp.Result);
+                }
+            }
+            return null;
+        }
+
+        public static void GetAllOrders(string symbol)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
+            long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var signedBytes = Sign(secret, $"symbol={symbol}&timestamp={ts}");
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/allOrders?symbol={symbol}&timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
             var resp = response.Content.ReadAsStringAsync();
             Console.WriteLine(resp.Result);
             Console.WriteLine(response.Headers.ToString());
@@ -54,19 +106,65 @@ namespace binanceBotNetCore.Logic.BinanceApi
             Console.WriteLine(response.Content);
         }
 
+        public static void GetAllTrades(string symbol)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
+            long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var signedBytes = Sign(secret, $"symbol={symbol}&timestamp={ts}");
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/myTrades?symbol={symbol}&timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
+            var resp = response.Content.ReadAsStringAsync();
+            Console.WriteLine(resp.Result);
+            Console.WriteLine(response.Headers.ToString());
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.Content);
+        }
+
+        public static List<ExchangeSymbol> ExchangeInfo()
+        {
+            List<ExchangeSymbol> exchangeSymbols = new List<ExchangeSymbol>();
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/exchangeInfo").Result;
+            var resp = response.Content.ReadAsStringAsync();
+            dynamic o = JObject.Parse(resp.Result);
+            //Console.WriteLine(o.symbols);
+            foreach(JObject item in o.symbols)
+            {
+                ExchangeSymbol exchangeSymbol = new ExchangeSymbol()
+                {
+                    Symbol = item["symbol"].ToString(),
+                    Commission = CheckCommission(item["symbol"].ToString())
+                };
+                JToken filters = item["filters"];
+                foreach(var filter in filters)
+                {
+                    if (filter["filterType"].ToString() == "LOT_SIZE")
+                    {
+                        exchangeSymbol.QuantityStep = Convert.ToDecimal(filter["stepSize"]);
+                    }
+                }
+                exchangeSymbols.Add(exchangeSymbol);
+            }
+            return exchangeSymbols;
+        }
+
+        private static decimal CheckCommission(string symbol)
+        {
+            return 0.001m;
+        }
+
         public static void AccountStatus()
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
-            // client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8");
-            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", "YnRuuGGYr1IPoPg9uP8kuInXiTVOpPdBVUn0zQ14fBxxU9DCwavqsa5MwxFxkZk7");
-            //HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("soLQxiMF81zDng22Qw1SFD42WZd9WO9aF2sVNlqlVhWTU26vJt5agBa038tzC9m8"));
-            HMACSHA256 sign = new HMACSHA256(Encoding.ASCII.GetBytes("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg"));
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
             long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var signedBytes = Sign("jzF9PZpQ5MFSAPOEpQUaOitpoc2nIB9HS68pRrZaSiyb8AUGxvnbe00VS1LoQgTg", $"timestamp={ts}");
+            var signedBytes = Sign(secret, $"timestamp={ts}");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = client.GetAsync($"https://testnet.binance.vision/api/v3/account?timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/account?timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
             var resp = response.Content.ReadAsStringAsync();
             Console.WriteLine(resp.Result);
             Console.WriteLine(response.Headers.ToString());
@@ -91,7 +189,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = client.GetAsync($"https://testnet.binance.com/api/v1/ticker/price?symbol={symbol}").Result;
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v1/ticker/price?symbol={symbol}").Result;
             var resp = response.Content.ReadAsStringAsync();
             Console.WriteLine(resp.Result);
             return JsonConvert.DeserializeObject<Price>(resp.Result);
@@ -102,7 +200,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = client.GetAsync($"https://testnet.binance.com/api/v3/klines?limit=10&symbol={symbol}&interval={interval}").Result;
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/klines?limit=10&symbol={symbol}&interval={interval}").Result;
             var resp = response.Content.ReadAsStringAsync();
             string array = resp.Result;
             array = array.Replace("[[", "[");
@@ -146,7 +244,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = client.GetAsync("https://testnet.binance.com/api/v1/ticker/allPrices").Result;
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v1/ticker/allPrices").Result;
             var resp = response.Content.ReadAsStringAsync();
             if (prices.Count == 0)
             {
@@ -185,14 +283,21 @@ namespace binanceBotNetCore.Logic.BinanceApi
             df = df.FindBestCurrencies();
             if (df.Rows.Count > 0)
             {
-                df.PrettyPrint();
+                //df.PrettyPrint();
                 for(index = 0; index < df.Rows.Count; index++)
                 {
-                    if (!account.UnderChecking.Contains(df[index, 0].ToString()) && !df[index, 0].ToString().EndsWith("DOWNUSDT"))
+                    if (!account.ProcessCurrencies.Select(s=>s.Symbol).ToList().Contains(df[index, 0].ToString()) && !df[index, 0].ToString().EndsWith("DOWNUSDT"))
                     {
-                        account.UnderChecking.Add(df[index, 0].ToString());
-                        account.UnderChecking = account.UnderChecking.Distinct().ToList();
+                        Currency currency = new Currency()
+                        {
+                            Symbol = df[index, 0].ToString(),
+                            Status = Currency.CurrencyStatus.WaitingForProcessing
+                        };
+                        account.ProcessCurrencies.Add(currency);
+                        account.ProcessCurrencies = account.ProcessCurrencies.Distinct().ToList();
+                        account.ProcessCurrencies = account.ProcessCurrencies.OrderBy(o=>o.Symbol).ToList();
                         account.ProcessCurrenciesAsync();
+                        account.ProcessCurrencies = account.ProcessCurrencies.Where(c => c.Status != Currency.CurrencyStatus.Processed).ToList();
                     }
                 }
             }

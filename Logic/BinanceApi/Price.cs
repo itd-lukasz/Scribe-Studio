@@ -2,7 +2,8 @@ using System;
 
 namespace binanceBotNetCore.Logic.BinanceApi{
 
-    public class Price{
+    public class Price
+    {
         public string symbol{get;set;}
         public decimal price { get; set; }
         public DateTime time { get; set; }

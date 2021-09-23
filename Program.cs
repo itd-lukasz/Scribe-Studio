@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using binanceBotNetCore.Logic.BinanceApi;
@@ -15,12 +16,33 @@ namespace binanceBotNetCore
     {
         static void Main()
         {
-            //binanceBotNetCore.Logic.BinanceApi.BinanceApi.AccountStatus();
-            //binanceBotNetCore.Logic.BinanceApi.BinanceApi.CreateOrder("ETHUSDT", 1);
-            binanceBotNetCore.Logic.BinanceApi.BinanceApi.GetCurrentPrice("IDEXUSDT");
-            Console.WriteLine("-----");
-            binanceBotNetCore.Logic.BinanceApi.BinanceApi.GetKlinesDataFrame("IDEXUSDT", "1m");
-            MainAsync().Wait();
+            GlobalStore.Symbols = BinanceApi.ExchangeInfo();
+            //BinanceApi.AccountStatus();
+            Price price = BinanceApi.GetCurrentPrice("TRXUSDT");
+            //Console.WriteLine(price);
+            //BinanceApi.GetAllTrades("TRXUSDT");
+            //BinanceApi.ExchangeInfo();
+            try
+            {
+                Order order = BinanceApi.CreateOrder("TRXUSDT", Math.Round(15 / price.price, 1), price.price-1, "BUY");
+                if (order.status == "FILLED")
+                {
+                    decimal commission = GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.Commission).First() * order.cummulativeQuoteQty;
+                    Order backOrder = BinanceApi.CreateOrder("TRXUSDT", order.executedQty, Math.Round((order.cummulativeQuoteQty + (order.cummulativeQuoteQty / 100) + commission) / order.executedQty, 5), "SELL");
+                    Console.WriteLine("done!");
+                }
+            }
+            catch(Exception exc)
+            {
+                Console.WriteLine(exc.Message);
+            }
+            //BinanceApi.AccountStatus();
+            Console.ReadKey();
+            //binanceBotNetCore.Logic.BinanceApi.BinanceApi.GetCurrentPrice("IDEXUSDT");
+            //Console.WriteLine("-----");
+            //binanceBotNetCore.Logic.BinanceApi.BinanceApi.GetKlinesDataFrame("IDEXUSDT", "1m");
+            //Core.ProcessResults("data/AVAXUSDT-1m.csv");
+            //MainAsync().Wait();
             // or, if you want to avoid exceptions being wrapped into AggregateException:
             //  MainAsync().GetAwaiter().GetResult();
         }
@@ -52,7 +74,7 @@ namespace binanceBotNetCore
             {
                 try
                 {
-                    Console.WriteLine($"Current time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
+                    //Console.WriteLine($"Current time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
                     prices = BinanceApi.GetInterestingCurrenciesAsync(prices, account);
                     startTime = DateTime.Now;
                     Thread.Sleep(10000);

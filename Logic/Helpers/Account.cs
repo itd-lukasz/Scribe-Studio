@@ -12,20 +12,19 @@ namespace binanceBotNetCore.Logic.Helpers
     {
         public decimal BalanceUSDT { get; set; }
         public List<WalletPosition> Wallet { get; set; }
-        public List<string> UnderChecking { get; set; }
+        public List<Currency> ProcessCurrencies { get; set; }
 
         public Account()
         {
             BalanceUSDT = 100;
-            UnderChecking = new List<string>();
+            ProcessCurrencies = new List<Currency>();
             LoadAccount();
         }
 
         async public void ProcessCurrenciesAsync()
         {
-            foreach(string currency in UnderChecking.Distinct().ToList())
+            foreach(Currency currency in ProcessCurrencies.Distinct().ToList())
             {
-                Console.WriteLine($"Processing currency {currency}");
                 Task.Run(()=> Core.ProcessCurrencyAsync(currency));
             }
         }

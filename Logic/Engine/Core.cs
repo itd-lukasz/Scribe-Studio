@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,71 +11,104 @@ namespace binanceBotNetCore.Logic.Engine
 {
     public static class Core
     {
-        async public static Task ProcessCurrencyAsync(string currency)
+        async public static Task ProcessCurrencyAsync(Currency currency)
         {
-            if (!File.Exists(string.Format($"sources/{currency}-1m-{DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")}.csv")))
+            //Console.WriteLine($"Processing currency {currency.Symbol}");
+            if (currency.Status == Currency.CurrencyStatus.WaitingForProcessing)
             {
-                Console.WriteLine($"Downloading currency {currency}");
-                await Task.Run(() => DownloadCurrencyAsync(currency, "1m"));
-            }
-            if (!File.Exists(string.Format($"data/{currency}-1m.csv")))
-            {
-                DataFrame df = new DataFrame();
-                foreach (string file in Directory.GetFiles("sources", string.Format($"{currency}-1m-*.csv")).ToList())
+                currency.Status = Currency.CurrencyStatus.Processing;
+                if (!File.Exists(string.Format($"sources/{currency.Symbol}-1m-{DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")}.csv")))
                 {
-                    DataFrame local_df = DataFrames.CountBinaryData(Kline.ParseCsv(file));
-                    local_df = DataFrames.CountRanges(local_df);
-                    if (df.Columns.Count == 0)
-                    {
-                        foreach (DataFrameColumn column in local_df.Columns)
-                        {
-                            df.Columns.Add(column);
-                        }
-                    }
-                    df.Append(local_df.Rows);
+                    Console.WriteLine($"Downloading currency {currency.Symbol}");
+                    await Task.Run(() => DownloadCurrencyAsync(currency.Symbol, "1m"));
+                    Console.WriteLine($"Currency {currency.Symbol} downloaded!");
                 }
-                DataFrame.WriteCsv(df, $"data/{currency}-1m.csv", '|');
-                Console.WriteLine($"Data for {currency} ready!");
-            }
-            else
-            {
-                DataFrame global_df = DataFrame.LoadCsv($"data/{currency}-1m.csv", '|');
-                Console.WriteLine($"Data for {currency} restored!");
-                DataFrame current_df = DataFrames.CountBinaryData(BinanceApi.BinanceApi.GetKlinesDataFrame($"{currency}", "1m"));
-                current_df = DataFrames.CountRanges(current_df);
-                string binaryData = current_df[current_df.Rows.Count-1, 45].ToString();
-                string Range_High_Low_One_Minute_Ago = current_df[current_df.Rows.Count-1, 45].ToString();
-                string Range_High_Low_Two_Minute_Ago = current_df[current_df.Rows.Count-1, 46].ToString();
-                string Range_High_Low_Three_Minute_Ago = current_df[current_df.Rows.Count-1, 47].ToString();
-                string Range_High_Low_Four_Minute_Ago = current_df[current_df.Rows.Count-1, 48].ToString();
-                string Range_High_Low_Five_Minute_Ago = current_df[current_df.Rows.Count-1, 49].ToString();
-                Console.WriteLine($"Current data for {currency} loaded and looking for {binaryData} data!");
-                global_df = global_df.Filter(global_df.Columns["BinaryData"].ElementwiseEquals(binaryData));
-                global_df = global_df.Filter(global_df.Columns["Range_High_Low_One_Minute_Ago"].ElementwiseEquals(Range_High_Low_One_Minute_Ago));
-                global_df = global_df.Filter(global_df.Columns["Range_High_Low_Two_Minute_Ago"].ElementwiseEquals(Range_High_Low_Two_Minute_Ago));
-                global_df = global_df.Filter(global_df.Columns["Range_High_Low_Three_Minute_Ago"].ElementwiseEquals(Range_High_Low_Three_Minute_Ago));
-                global_df = global_df.Filter(global_df.Columns["Range_High_Low_Four_Minute_Ago"].ElementwiseEquals(Range_High_Low_Four_Minute_Ago));
-                global_df = global_df.Filter(global_df.Columns["Range_High_Low_Five_Minute_Ago"].ElementwiseEquals(Range_High_Low_Five_Minute_Ago));
-                if (global_df.Rows.Count > 0)
+                if (!File.Exists(string.Format($"data/{currency.Symbol}-1m-agg.csv")))
                 {
-                    DataFrame rows_shouldBuy = global_df.Clone();
-                    DataFrame rows_shouldntBuy = global_df.Clone();
-                    rows_shouldBuy = rows_shouldBuy.Filter(rows_shouldBuy.Columns["ShouldBuy"].ElementwiseEquals("True"));
-                    rows_shouldntBuy = rows_shouldBuy.Filter(rows_shouldBuy.Columns["ShouldBuy"].ElementwiseEquals("False"));
-                    if (rows_shouldBuy.Rows.Count > rows_shouldntBuy.Rows.Count)
+                    //Console.WriteLine($"Preparing data for {currency.Symbol}!");
+                    DataFrame df = new DataFrame();
+                    foreach (string file in Directory.GetFiles("sources", string.Format($"{currency.Symbol}-1m-*.csv")).ToList())
                     {
-                        Console.WriteLine($"Should buy {currency}!");
+                        DataFrame local_df = DataFrames.CountBinaryData(Kline.ParseCsv(file));
+                        local_df = DataFrames.CountRanges(local_df);
+                        if (df.Columns.Count == 0)
+                        {
+                            foreach (DataFrameColumn column in local_df.Columns)
+                            {
+                                df.Columns.Add(column);
+                            }
+                        }
+                        df.Append(local_df.Rows);
                     }
-                    else
-                    {
-                        Console.WriteLine($"Shouldn't buy {currency}!");
-                    }
+                    DataFrame.WriteCsv(df, $"data/{currency}-1m.csv", '|');
+                    ProcessResults($"data/{currency}-1m.csv");
+                    //Console.WriteLine($"Data for {currency} ready!");
+                    currency.Status = Currency.CurrencyStatus.WaitingForProcessing;
                 }
                 else
                 {
-                    Console.WriteLine($"There is no example data for {currency} and {binaryData}!");
+                    //Console.WriteLine($"Data for {currency} restoring!");
+                    currency.Status = Currency.CurrencyStatus.Searching;
+                    DataFrame current_df = DataFrames.CountBinaryData(BinanceApi.BinanceApi.GetKlinesDataFrame($"{currency}", "1m"));
+                    current_df = DataFrames.CountRanges(current_df);
+                    string binaryData = current_df[current_df.Rows.Count - 1, 45].ToString();
+                    string Range_High_Low_One_Minute_Ago = current_df[current_df.Rows.Count - 1, 46].ToString();
+                    string Range_High_Low_Two_Minute_Ago = current_df[current_df.Rows.Count - 1, 47].ToString();
+                    string Range_High_Low_Three_Minute_Ago = current_df[current_df.Rows.Count - 1, 48].ToString();
+                    string Range_High_Low_Four_Minute_Ago = current_df[current_df.Rows.Count - 1, 49].ToString();
+                    string Range_High_Low_Five_Minute_Ago = current_df[current_df.Rows.Count - 1, 50].ToString();
+                    //--------------------------------//
+                    List<DataFrameResultsCombination> results = new List<DataFrameResultsCombination>();
+                    StreamReader sr = new StreamReader($"data/{currency}-1m-agg.csv");
+                    string line = "";
+                    int shouldBuy = 0;
+                    int shouldntBuy = 0;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (line.ToLower().StartsWith($"{currency}|{binaryData}|true|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|".ToLower()))
+                        {
+                            shouldBuy = Convert.ToInt32(line.Split('|').ToList()[8]);
+                        }
+                        if (line.ToLower().StartsWith($"{currency}|{binaryData}|false|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|".ToLower()))
+                        {
+                            shouldntBuy = Convert.ToInt32(line.Split('|').ToList()[8]);
+                        }
+                    }
+                    sr.Close();
+                    Console.WriteLine($"Data for {currency} restored!");
+                    Console.WriteLine($"Should buy: {shouldBuy}");
+                    Console.WriteLine($"Shouldnt buy: {shouldntBuy}");
+                    Console.WriteLine($"{currency}|{binaryData}|true|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|");
+                    if (shouldBuy > shouldntBuy)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Green;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.Write($"Should buy {currency}!");
+                        Console.WriteLine();
+                        Price price = BinanceApi.BinanceApi.GetCurrentPrice(currency.Symbol);
+                        Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(15 / price.price, GlobalStore.Symbols.Where(s => s.Symbol == currency.Symbol).Select(s => s.QuantityDecimalPlaces).First()), price.price, "BUY");
+                        if (order.status == "FILLED")
+                        {
+                            decimal commission = GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.Commission).First() * order.cummulativeQuoteQty;
+                            Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, order.executedQty, Math.Round((order.cummulativeQuoteQty + (order.cummulativeQuoteQty / 100) + commission) / order.executedQty, GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.PriceDecimalPlaces).First()), "SELL");
+                        }
+                    }
+                    else
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write($"Shouldn't buy {currency}!");
+                    }
+                    Console.ResetColor();
+                    Console.WriteLine();
+                    currency.Status = Currency.CurrencyStatus.Processed;
                 }
             }
+            else
+            {
+                //Console.WriteLine($"Skipping {currency.Symbol}!");
+            }
+            //Console.WriteLine($"Currency {currency.Symbol} processed (Async)");
         }
 
         async private static void DownloadCurrencyAsync(string currency, string interval)
@@ -94,6 +128,68 @@ namespace binanceBotNetCore.Logic.Engine
                     }
                 }
             }
+        }
+
+        public static void ProcessResults(string fileName)
+        {
+            List<DataFrameResultsCombination> results = new List<DataFrameResultsCombination>();
+            StreamReader sr = new StreamReader(fileName);
+            string line = "";
+            bool firstLine = true;
+            while ((line = sr.ReadLine()) != null)
+            {
+                if (!firstLine)
+                {
+                    List<string> fields = line.Split('|').ToList();
+                    DataFrameResultsCombination row = new DataFrameResultsCombination()
+                    {
+                        symbol = fields[43],
+                        shouldBuy = fields[44],
+                        binary = fields[45],
+                        oneMinute = fields[46],
+                        twoMinute = fields[47],
+                        threeMinute = fields[48],
+                        fourMinute = fields[49],
+                        fiveMinute = fields[50]
+                    };
+                    results.Add(row);
+                }
+                firstLine = false;
+            }
+            sr.Close();
+            //var q = from x in results
+            //        group x by x.symbol into g
+            //        let count = g.Count()
+            //        orderby count descending
+            //        select new { Value = g.Key, Count = count };
+            var consolidatedChildren = results.GroupBy(c => new
+            {
+                c.symbol,
+                c.shouldBuy,
+                c.binary,
+                c.oneMinute,
+                c.twoMinute,
+                c.threeMinute,
+                c.fourMinute,
+                c.fiveMinute
+            }).Select(gcs => new DataFrameResultsCombination()
+            {
+                symbol = gcs.Key.symbol,
+                shouldBuy = gcs.Key.shouldBuy,
+                binary = gcs.Key.binary,
+                oneMinute = gcs.Key.oneMinute,
+                twoMinute = gcs.Key.twoMinute,
+                threeMinute = gcs.Key.threeMinute,
+                fourMinute = gcs.Key.fourMinute,
+                fiveMinute = gcs.Key.fiveMinute,
+                count = gcs.Count()
+            });
+            StreamWriter sw = new StreamWriter(fileName.Replace(".csv", "-agg.csv"));
+            foreach (DataFrameResultsCombination res in consolidatedChildren)
+            {
+                sw.WriteLine($"{res.symbol}|{res.binary}|{res.shouldBuy}|{res.oneMinute}|{res.twoMinute}|{res.threeMinute}|{res.fourMinute}|{res.fiveMinute}|{res.count}");
+            }
+            sw.Close();
         }
     }
 }
