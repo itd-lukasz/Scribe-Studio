@@ -29,11 +29,21 @@ namespace binanceBotNetCore.Logic.BinanceApi
             get
             {
                 decimal value = 0;
-                foreach(var fill in fills)
+                foreach (var fill in fills)
                 {
                     value += (Convert.ToDecimal(fill["price"]) * Convert.ToDecimal(fill["qty"])) + Convert.ToDecimal(fill["commission"]);
                 }
                 return value;
+            }
+        }
+
+        public void RefreshStatus()
+        {
+            if (status != "FILLED")
+            {
+                Order order = BinanceApi.GetOrder(symbol, orderId.ToString());
+                status = order.status;
+                fills = order.fills;
             }
         }
     }

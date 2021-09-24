@@ -10,5 +10,6 @@ namespace binanceBotNetCore.Logic.Helpers
     public static class GlobalStore
     {
         public static List<ExchangeSymbol> Symbols { get; set; }
+        public static Account Account { get; set; }
     }
 }
