@@ -15,14 +15,21 @@ namespace binanceBotNetCore.Logic.BinanceApi
             get
             {
                 string decimal_places = QuantityStep.ToString();
-                decimal_places = decimal_places.Remove(0, 2);
-                int res = 1;
-                while(!decimal_places.StartsWith("1"))
+                try
                 {
-                    decimal_places = decimal_places.Remove(0, 1);
-                    res++;
+                    decimal_places = decimal_places.Remove(0, 2);
+                    int res = 1;
+                    while (!decimal_places.StartsWith("1"))
+                    {
+                        decimal_places = decimal_places.Remove(0, 1);
+                        res++;
+                    }
+                    return res;
                 }
-                return res;
+                catch
+                {
+                    return 0;
+                }
             }
         }
         public decimal Commission { get; set; }
@@ -32,14 +39,21 @@ namespace binanceBotNetCore.Logic.BinanceApi
             get
             {
                 string decimal_places = PriceStep.ToString();
-                decimal_places = decimal_places.Remove(0, 2);
-                int res = 1;
-                while (!decimal_places.StartsWith("1"))
+                try
                 {
-                    decimal_places = decimal_places.Remove(0, 1);
-                    res++;
+                    decimal_places = decimal_places.Remove(0, 2);
+                    int res = 1;
+                    while (!decimal_places.StartsWith("1"))
+                    {
+                        decimal_places = decimal_places.Remove(0, 1);
+                        res++;
+                    }
+                    return res;
                 }
-                return res;
+                catch
+                {
+                    return 5;
+                }
             }
         }
 

@@ -53,8 +53,8 @@ namespace binanceBotNetCore.Logic.BinanceApi
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             if (side == "BUY" || side == "")
             {
-                var signedBytes = Sign(secret, $"recvWindow=500&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
-                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?recvWindow=500&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
+                var signedBytes = Sign(secret, $"recvWindow=100&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
+                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?recvWindow=100&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
                 var resp = response.Content.ReadAsStringAsync();
                 if (resp.Result.ToLower().Contains("code"))
                 {
@@ -262,7 +262,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             return Kline.ParseList(klines, symbol);
         }
 
-        public static List<Price> GetInterestingCurrenciesAsync(List<Price> prices)
+        public static List<Price> GetInterestingCurrencies(List<Price> prices)
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
@@ -281,9 +281,9 @@ namespace binanceBotNetCore.Logic.BinanceApi
             prices = prices.OrderBy(p => p.symbol).ThenByDescending(p => p.time).ToList();
             List<string> dates = prices.Select(s => s.time.ToLongTimeString()).Distinct().ToList();
             dates = dates.OrderByDescending(s => s).ToList();
-            if (dates.Count > 6)
+            if (dates.Count > 11)
             {
-                prices = prices.Where(p => p.time.ToLongTimeString() != dates[6]).ToList();
+                prices = prices.Where(p => p.time.ToLongTimeString() != dates[11]).ToList();
             }
             DataFrame df = new DataFrame();
             df.Columns.Add(new PrimitiveDataFrameColumn<int>("index"));
@@ -321,7 +321,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
                         GlobalStore.Account.ProcessCurrencies.Add(currency);
                         GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Distinct().ToList();
                         GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.OrderBy(o=>o.Symbol).ToList();
-                        GlobalStore.Account.ProcessCurrenciesAsync();
+                        GlobalStore.Account.ProcessWaitingCurrencies();
                         GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Where(c => c.Status != Currency.CurrencyStatus.Processed).ToList();
                     }
                 }
