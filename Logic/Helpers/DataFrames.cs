@@ -70,11 +70,11 @@ namespace binanceBotNetCore.Logic.Helpers
                     df[index, 60] = Convert.ToInt32(Convert.ToDecimal(df[index - 3, 2]) < Convert.ToDecimal(df[index - 3, 5])); //Up 3m ago
                     df[index, 61] = Convert.ToInt32(Convert.ToDecimal(df[index - 4, 2]) < Convert.ToDecimal(df[index - 4, 5])); //Up 4m ago
                     df[index, 62] = Convert.ToInt32(Convert.ToDecimal(df[index - 5, 2]) < Convert.ToDecimal(df[index - 5, 5])); //Up 5m ago
-                    df[index, 63] = Convert.ToInt32(Convert.ToDecimal(df[index - 1, 2]) < Convert.ToDecimal(df[index - 1, 5])); //Up 6m ago
-                    df[index, 64] = Convert.ToInt32(Convert.ToDecimal(df[index - 2, 2]) < Convert.ToDecimal(df[index - 2, 5])); //Up 7m ago
-                    df[index, 65] = Convert.ToInt32(Convert.ToDecimal(df[index - 3, 2]) < Convert.ToDecimal(df[index - 3, 5])); //Up 8m ago
-                    df[index, 66] = Convert.ToInt32(Convert.ToDecimal(df[index - 4, 2]) < Convert.ToDecimal(df[index - 4, 5])); //Up 9m ago
-                    df[index, 67] = Convert.ToInt32(Convert.ToDecimal(df[index - 5, 2]) < Convert.ToDecimal(df[index - 5, 5])); //Up 10m ago
+                    df[index, 63] = Convert.ToInt32(Convert.ToDecimal(df[index - 6, 2]) < Convert.ToDecimal(df[index - 6, 5])); //Up 6m ago
+                    df[index, 64] = Convert.ToInt32(Convert.ToDecimal(df[index - 7, 2]) < Convert.ToDecimal(df[index - 7, 5])); //Up 7m ago
+                    df[index, 65] = Convert.ToInt32(Convert.ToDecimal(df[index - 8, 2]) < Convert.ToDecimal(df[index - 8, 5])); //Up 8m ago
+                    df[index, 66] = Convert.ToInt32(Convert.ToDecimal(df[index - 9, 2]) < Convert.ToDecimal(df[index - 9, 5])); //Up 9m ago
+                    df[index, 67] = Convert.ToInt32(Convert.ToDecimal(df[index - 10, 2]) < Convert.ToDecimal(df[index - 10, 5])); //Up 10m ago
                     df[index, 70] = string.Format($"{Convert.ToInt32(Convert.ToDecimal(df[index - 1, 2]) < Convert.ToDecimal(df[index - 1, 5]))}" +
                                                   $"{Convert.ToInt32(Convert.ToDecimal(df[index - 2, 2]) < Convert.ToDecimal(df[index - 2, 5]))}" +
                                                   $"{Convert.ToInt32(Convert.ToDecimal(df[index - 3, 2]) < Convert.ToDecimal(df[index - 3, 5]))}" +

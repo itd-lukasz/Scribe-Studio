@@ -223,7 +223,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/klines?limit=10&symbol={symbol}&interval={interval}").Result;
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/klines?limit=11&symbol={symbol}&interval={interval}").Result;
             var resp = response.Content.ReadAsStringAsync();
             string array = resp.Result;
             array = array.Replace("[[", "[");

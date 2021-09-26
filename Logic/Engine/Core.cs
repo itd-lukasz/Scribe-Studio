@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using binanceBotNetCore.Logic.BinanceApi;
 using binanceBotNetCore.Logic.Helpers;
+using binanceBotNetCore.Logic.Tools;
 using Microsoft.Data.Analysis;
 
 namespace binanceBotNetCore.Logic.Engine
@@ -48,6 +49,7 @@ namespace binanceBotNetCore.Logic.Engine
                     currency.Status = Currency.CurrencyStatus.Searching;
                     DataFrame current_df = DataFrames.CountBinaryData(BinanceApi.BinanceApi.GetKlinesDataFrame($"{currency}", "1m"));
                     current_df = DataFrames.CountRanges(current_df);
+                    //current_df.PrettyPrint();
                     string binaryData = current_df[current_df.Rows.Count - 1, 70].ToString();
                     string Range_High_Low_One_Minute_Ago = current_df[current_df.Rows.Count - 1, 71].ToString();
                     string Range_High_Low_Two_Minute_Ago = current_df[current_df.Rows.Count - 1, 72].ToString();
@@ -89,6 +91,7 @@ namespace binanceBotNetCore.Logic.Engine
                             Console.BackgroundColor = ConsoleColor.Green;
                             Console.ForegroundColor = ConsoleColor.Black;
                             Console.Write($"Should buy {currency}!");
+                            Console.WriteLine(DateTime.Now.ToShortTimeString());
                             Console.WriteLine();
                             OrdersPair ordersPair = new OrdersPair();
                             ExchangeSymbol exchangeSymbol = GlobalStore.Symbols.Where(s => s.Symbol == currency.Symbol).First();
@@ -280,14 +283,19 @@ namespace binanceBotNetCore.Logic.Engine
                     List<string> fields = line.Split('|').ToList();
                     DataFrameResultsCombination row = new DataFrameResultsCombination()
                     {
-                        symbol = fields[43],
-                        shouldBuy = fields[44],
-                        binary = fields[45],
-                        oneMinute = fields[46],
-                        twoMinute = fields[47],
-                        threeMinute = fields[48],
-                        fourMinute = fields[49],
-                        fiveMinute = fields[50]
+                        symbol = fields[68],
+                        shouldBuy = fields[69],
+                        binary = fields[70],
+                        oneMinute = fields[71],
+                        twoMinute = fields[72],
+                        threeMinute = fields[73],
+                        fourMinute = fields[74],
+                        fiveMinute = fields[75],
+                        sixMinute = fields[76],
+                        sevenMinute = fields[77],
+                        eightMinute = fields[78],
+                        nineMinute = fields[79],
+                        tenMinute = fields[80]
                     };
                     results.Add(row);
                 }
@@ -308,7 +316,12 @@ namespace binanceBotNetCore.Logic.Engine
                 c.twoMinute,
                 c.threeMinute,
                 c.fourMinute,
-                c.fiveMinute
+                c.fiveMinute,
+                c.sixMinute,
+                c.sevenMinute,
+                c.eightMinute,
+                c.nineMinute,
+                c.tenMinute
             }).Select(gcs => new DataFrameResultsCombination()
             {
                 symbol = gcs.Key.symbol,
@@ -319,12 +332,17 @@ namespace binanceBotNetCore.Logic.Engine
                 threeMinute = gcs.Key.threeMinute,
                 fourMinute = gcs.Key.fourMinute,
                 fiveMinute = gcs.Key.fiveMinute,
+                sixMinute = gcs.Key.sixMinute,
+                sevenMinute = gcs.Key.sevenMinute,
+                eightMinute = gcs.Key.eightMinute,
+                nineMinute = gcs.Key.nineMinute,
+                tenMinute = gcs.Key.tenMinute,
                 count = gcs.Count()
             });
             StreamWriter sw = new StreamWriter(fileName.Replace(".csv", "-agg.csv"));
             foreach (DataFrameResultsCombination res in consolidatedChildren)
             {
-                sw.WriteLine($"{res.symbol}|{res.binary}|{res.shouldBuy}|{res.oneMinute}|{res.twoMinute}|{res.threeMinute}|{res.fourMinute}|{res.fiveMinute}|{res.count}");
+                sw.WriteLine($"{res.symbol}|{res.binary}|{res.shouldBuy}|{res.oneMinute}|{res.twoMinute}|{res.threeMinute}|{res.fourMinute}|{res.fiveMinute}|{res.sixMinute}|{res.sevenMinute}|{res.eightMinute}|{res.nineMinute}|{res.tenMinute}|{res.count}");
             }
             sw.Close();
         }
