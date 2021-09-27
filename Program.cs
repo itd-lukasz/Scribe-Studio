@@ -16,8 +16,15 @@ namespace binanceBotNetCore
     {
         static void Main()
         {
+            Console.Clear();
             Console.ResetColor();
             GlobalStore.Symbols = BinanceApi.ExchangeInfo();
+            GlobalStore.Units = 10;
+            GlobalStore.Percent = 0.2m;
+            //var s = GlobalStore.Symbols.Where(s => s.Symbol == "UNIUSDT").First();
+            //decimal commission = s.Commission * 0.57m;
+            //Order backOrder = BinanceApi.CreateOrder(s.Symbol, 0.57m, Math.Round(22.87m + ((22.87m / 100m) * GlobalStore.Percent) + commission, 2), "SELL");
+            MainLogic();
             //BinanceApi.AccountStatus();
             //Price price = BinanceApi.GetCurrentPrice("TRXUSDT");
             ////Console.WriteLine(price);
@@ -44,14 +51,63 @@ namespace binanceBotNetCore
             //Console.WriteLine("-----");
             //binanceBotNetCore.Logic.BinanceApi.BinanceApi.GetKlinesDataFrame("IDEXUSDT", "1m");
             //Core.ProcessResults("data/AVAXUSDT-1m.csv");
-            MainAsync().Wait();
+            //MainAsync().Wait();
             // or, if you want to avoid exceptions being wrapped into AggregateException:
             //  MainAsync().GetAwaiter().GetResult();
         }
 
+        static void MainLogic()
+        {
+            Console.WriteLine("Binance Bot .Net Core - Synchro mode");
+            GlobalStore.Account = new Account();
+            GlobalStore.Account.LoadAccount();
+            List<Price> prices = new List<Price>();
+            DateTime startTime = DateTime.Now;
+            DateTime endTime = startTime.AddHours(6);
+            if (!Directory.Exists("sources"))
+            {
+                Directory.CreateDirectory("sources");
+            }
+            if (!Directory.Exists("data"))
+            {
+                Directory.CreateDirectory("data");
+            }
+            if (!Directory.Exists("sources/download"))
+            {
+                Directory.CreateDirectory("sources/download");
+            }
+            Console.WriteLine($"Start time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
+            while (startTime < endTime)
+            {
+                try
+                {
+                    prices = BinanceApi.GetInterestingCurrencies(prices);
+                    startTime = DateTime.Now;
+                    GlobalStore.Account.ProcessOrders();
+                    GlobalStore.Account.SaveAccount();
+                    Console.ResetColor();
+                    Thread.Sleep(5000);
+                }
+                catch (Exception exc)
+                {
+                    Console.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                    Console.WriteLine("Exception in main method!");
+                    Console.WriteLine(exc.Message);
+                    Console.WriteLine("########################################################");
+                    Console.WriteLine("Source:");
+                    Console.WriteLine(exc.Source);
+                    Console.WriteLine("Stack trace");
+                    Console.WriteLine(exc.StackTrace);
+                    Console.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                }
+            }
+            GlobalStore.Account.SaveAccount();
+        }
+
+        [Obsolete]
         static async Task MainAsync()
         {
-            Console.WriteLine("Binance Bot .Net Core");
+            Console.WriteLine("Binance Bot .Net Core - Async mode");
             GlobalStore.Account = new Account();
             GlobalStore.Account.LoadAccount();
             List<Price> prices = new List<Price>();
@@ -78,7 +134,7 @@ namespace binanceBotNetCore
                 try
                 {
                     //Console.WriteLine($"Current time: {startTime.ToLongTimeString()}, End time: {endTime.ToLongTimeString()}");
-                    prices = BinanceApi.GetInterestingCurrenciesAsync(prices);
+                    prices = BinanceApi.GetInterestingCurrencies(prices);
                     startTime = DateTime.Now;
                     GlobalStore.Account.ProcessOrders();
                     GlobalStore.Account.SaveAccount();

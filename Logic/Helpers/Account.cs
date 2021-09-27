@@ -23,11 +23,20 @@ namespace binanceBotNetCore.Logic.Helpers
             Orders = new List<OrdersPair>();
         }
 
+        [Obsolete]
         async public void ProcessCurrenciesAsync()
         {
             foreach (Currency currency in ProcessCurrencies.Distinct().ToList())
             {
                 Task.Run(() => Core.ProcessCurrencyAsync(currency));
+            }
+        }
+
+        public void ProcessWaitingCurrencies()
+        {
+            foreach (Currency currency in ProcessCurrencies.Distinct().ToList())
+            {
+                Core.ProcessCurrency(currency);
             }
         }
 
