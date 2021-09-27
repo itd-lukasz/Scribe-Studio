@@ -16,6 +16,11 @@ namespace binanceBotNetCore.Logic.Helpers
         public string threeMinute { get; set; }
         public string fourMinute { get; set; }
         public string fiveMinute { get; set; }
+        public string sixMinute { get; set; }
+        public string sevenMinute { get; set; }
+        public string eightMinute { get; set; }
+        public string nineMinute { get; set; }
+        public string tenMinute { get; set; }
         public int count { get; set; }
     }
 }
