@@ -67,15 +67,64 @@ namespace binanceBotNetCore.Logic.Engine
                     string line = "";
                     int shouldBuy = 0;
                     int shouldntBuy = 0;
+                    string searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|";
+                    if (GlobalStore.Units > 10 && GlobalStore.Units < 1)
+                    {
+                        throw new Exception("Value of units out of range!");
+                    }
+                    if (GlobalStore.Units == 1)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 2)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 3)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 4)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 5)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 6)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|{Range_High_Low_Six_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 7)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|{Range_High_Low_Six_Minute_Ago}|{Range_High_Low_Seven_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 8)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|{Range_High_Low_Six_Minute_Ago}|{Range_High_Low_Seven_Minute_Ago}|{Range_High_Low_Eight_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 9)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|{Range_High_Low_Six_Minute_Ago}|{Range_High_Low_Seven_Minute_Ago}|{Range_High_Low_Eight_Minute_Ago}|{Range_High_Low_Nine_Minute_Ago}";
+                    }
+                    if (GlobalStore.Units == 10)
+                    {
+                        searchPattern = $"{currency}|{binaryData.Substring(0, GlobalStore.Units)}|_bool_|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|{Range_High_Low_Six_Minute_Ago}|{Range_High_Low_Seven_Minute_Ago}|{Range_High_Low_Eight_Minute_Ago}|{Range_High_Low_Nine_Minute_Ago}|{Range_High_Low_Ten_Minute_Ago}";
+                    }
                     while ((line = sr.ReadLine()) != null)
                     {
-                        if (line.ToLower().StartsWith($"{currency}|{binaryData}|true|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|{Range_High_Low_Six_Minute_Ago}|{Range_High_Low_Seven_Minute_Ago}|{Range_High_Low_Eight_Minute_Ago}|{Range_High_Low_Nine_Minute_Ago}|{Range_High_Low_Ten_Minute_Ago}".ToLower()))
+                        if (line.Split('|')[1].Count() > 1)
                         {
-                            shouldBuy = Convert.ToInt32(line.Split('|').ToList()[8]);
-                        }
-                        if (line.ToLower().StartsWith($"{currency}|{binaryData}|false|{Range_High_Low_One_Minute_Ago}|{Range_High_Low_Two_Minute_Ago}|{Range_High_Low_Three_Minute_Ago}|{Range_High_Low_Four_Minute_Ago}|{Range_High_Low_Five_Minute_Ago}|{Range_High_Low_Six_Minute_Ago}|{Range_High_Low_Seven_Minute_Ago}|{Range_High_Low_Eight_Minute_Ago}|{Range_High_Low_Nine_Minute_Ago}|{Range_High_Low_Ten_Minute_Ago}".ToLower()))
-                        {
-                            shouldntBuy = Convert.ToInt32(line.Split('|').ToList()[8]);
+                            line = line.Replace(line.Split('|')[1], binaryData.Substring(0, GlobalStore.Units));
+                            if (line.ToLower().StartsWith(searchPattern.ToLower().Replace("_bool_", "true")))
+                            {
+                                shouldBuy += Convert.ToInt32(line.Split('|').ToList()[13]);
+                            }
+                            if (line.ToLower().StartsWith(searchPattern.ToLower().Replace("_bool_", "false")))
+                            {
+                                shouldntBuy += Convert.ToInt32(line.Split('|').ToList()[13]);
+                            }
                         }
                     }
                     sr.Close();
@@ -90,17 +139,19 @@ namespace binanceBotNetCore.Logic.Engine
                         {
                             Console.BackgroundColor = ConsoleColor.Green;
                             Console.ForegroundColor = ConsoleColor.Black;
-                            Console.Write($"Should buy {currency}!");
+                            Console.Write($"Should buy {currency}! Current time: ");
                             Console.WriteLine(DateTime.Now.ToShortTimeString());
                             Console.WriteLine();
                             OrdersPair ordersPair = new OrdersPair();
                             ExchangeSymbol exchangeSymbol = GlobalStore.Symbols.Where(s => s.Symbol == currency.Symbol).First();
-                            Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(15 / price.price, exchangeSymbol.QuantityDecimalPlaces), price.price, "BUY");
+                            Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(13 / price.price, exchangeSymbol.QuantityDecimalPlaces), price.price, "BUY");
                             Console.WriteLine("Order status: " + order.status);
                             if (order.status == "FILLED")
                             {
                                 decimal commission = exchangeSymbol.Commission * order.cummulativeQuoteQty;
-                                Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, order.executedQty, Math.Round((order.cummulativeQuoteQty + (order.cummulativeQuoteQty / 100) + commission) / order.executedQty, exchangeSymbol.PriceDecimalPlaces), "SELL");
+                                Console.WriteLine("Price decimal places: " + exchangeSymbol.PriceDecimalPlaces);
+                                Console.WriteLine("Price step: " + exchangeSymbol.PriceStep);
+                                Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, order.executedQty, Math.Round((price.price + ((price.price / 100) * GlobalStore.Percent) + commission), exchangeSymbol.PriceDecimalPlaces), "SELL");
                                 ordersPair.FirstOrder = order;
                                 ordersPair.SecondOrder = order;
                                 GlobalStore.Account.Orders.Add(ordersPair);

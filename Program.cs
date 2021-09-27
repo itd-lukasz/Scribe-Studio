@@ -19,6 +19,11 @@ namespace binanceBotNetCore
             Console.Clear();
             Console.ResetColor();
             GlobalStore.Symbols = BinanceApi.ExchangeInfo();
+            GlobalStore.Units = 10;
+            GlobalStore.Percent = 0.2m;
+            //var s = GlobalStore.Symbols.Where(s => s.Symbol == "UNIUSDT").First();
+            //decimal commission = s.Commission * 0.57m;
+            //Order backOrder = BinanceApi.CreateOrder(s.Symbol, 0.57m, Math.Round(22.87m + ((22.87m / 100m) * GlobalStore.Percent) + commission, 2), "SELL");
             MainLogic();
             //BinanceApi.AccountStatus();
             //Price price = BinanceApi.GetCurrentPrice("TRXUSDT");

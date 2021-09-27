@@ -11,5 +11,7 @@ namespace binanceBotNetCore.Logic.Helpers
     {
         public static List<ExchangeSymbol> Symbols { get; set; }
         public static Account Account { get; set; }
+        public static int Units { get; set; }
+        public static decimal Percent { get; set; }
     }
 }
