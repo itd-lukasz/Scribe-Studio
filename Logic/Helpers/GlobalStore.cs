@@ -13,5 +13,6 @@ namespace binanceBotNetCore.Logic.Helpers
         public static Account Account { get; set; }
         public static int Units { get; set; }
         public static decimal Percent { get; set; }
+        public static decimal OrderValue { get; set; }
     }
 }

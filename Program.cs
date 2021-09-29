@@ -19,11 +19,31 @@ namespace binanceBotNetCore
             Console.Clear();
             Console.ResetColor();
             GlobalStore.Symbols = BinanceApi.ExchangeInfo();
+            //var s = GlobalStore.Symbols.Where(s => s.Symbol == "ARPAUSDT").First();
+            //var s2 = GlobalStore.Symbols.Where(s => s.Symbol == "ZILUSDT").First();
             GlobalStore.Units = 10;
             GlobalStore.Percent = 0.2m;
-            //var s = GlobalStore.Symbols.Where(s => s.Symbol == "UNIUSDT").First();
-            //decimal commission = s.Commission * 0.57m;
-            //Order backOrder = BinanceApi.CreateOrder(s.Symbol, 0.57m, Math.Round(22.87m + ((22.87m / 100m) * GlobalStore.Percent) + commission, 2), "SELL");
+            GlobalStore.OrderValue = 23;
+            //recvWindow=5000&symbol=ARPAUSDT&side=SELL&type=LIMIT&quantity=189.21060000&timeInForce=GTC&timestamp=1632860971691&price=0.06886
+            //BinanceApi.CreateOrder("ARPAUSDT", )
+            //BinanceApi.GetTrade("ARPAUSDT", "188770090");
+            //var o = BinanceApi.GetOrder("TRXUSDT", "1331746270");
+            //Order.AddMissingOrders(BinanceApi.GetAllOrders("QTUMUSDT"));
+            //Order.AddMissingOrders(BinanceApi.GetAllOrders("TRXUSDT"));
+            //Order.AddMissingOrders(BinanceApi.GetAllOrders("KAVAUSDT"));
+            //Order.AddMissingOrders(BinanceApi.GetAllOrders("SRMUSDT"));
+            //Order.AddMissingOrders(BinanceApi.GetAllOrders("ICPUSDT"));
+            //List<Order> orders = BinanceApi.GetAllOrders("XTZUSDT");
+            //foreach(Order order in orders)
+            //{
+
+            //}
+            //ExchangeSymbol exchangeSymbol = GlobalStore.Symbols.Where(s => s.Symbol == "IOTXUSDT").First();
+            ////decimal commission = s.Commission * 0.57m;
+            //decimal commission = exchangeSymbol.Commission * 0.06136m;
+            //Console.WriteLine("Price decimal places: " + exchangeSymbol.PriceDecimalPlaces);
+            //Console.WriteLine("Price step: " + exchangeSymbol.PriceStep);
+            //Order backOrder = BinanceApi.CreateOrder(exchangeSymbol.Symbol, 212, Math.Round((0.06136m + ((0.06136m / 100) * GlobalStore.Percent) + commission), exchangeSymbol.PriceDecimalPlaces), "SELL");
             MainLogic();
             //BinanceApi.AccountStatus();
             //Price price = BinanceApi.GetCurrentPrice("TRXUSDT");
@@ -61,9 +81,10 @@ namespace binanceBotNetCore
             Console.WriteLine("Binance Bot .Net Core - Synchro mode");
             GlobalStore.Account = new Account();
             GlobalStore.Account.LoadAccount();
+            GlobalStore.Account.BalanceUSDT = 46.3404m;
             List<Price> prices = new List<Price>();
             DateTime startTime = DateTime.Now;
-            DateTime endTime = startTime.AddHours(6);
+            DateTime endTime = startTime.AddHours(48);
             if (!Directory.Exists("sources"))
             {
                 Directory.CreateDirectory("sources");
@@ -86,6 +107,11 @@ namespace binanceBotNetCore
                     GlobalStore.Account.ProcessOrders();
                     GlobalStore.Account.SaveAccount();
                     Console.ResetColor();
+                    foreach (string currency in GlobalStore.Account.OrdersCurrencies)
+                    {
+                        List<Order> orders = BinanceApi.GetAllOrders(currency);
+                        Order.AddMissingOrders(orders);
+                    }
                     Thread.Sleep(5000);
                 }
                 catch (Exception exc)

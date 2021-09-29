@@ -15,12 +15,14 @@ namespace binanceBotNetCore.Logic.Helpers
         public List<WalletPosition> Wallet { get; set; }
         public List<Currency> ProcessCurrencies { get; set; }
         public List<OrdersPair> Orders { get; set; }
+        public List<string> OrdersCurrencies { get; set; }
 
         public Account()
         {
             BalanceUSDT = 100;
             ProcessCurrencies = new List<Currency>();
             Orders = new List<OrdersPair>();
+            OrdersCurrencies = new List<string>();
         }
 
         [Obsolete]

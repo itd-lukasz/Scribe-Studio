@@ -59,8 +59,8 @@ namespace binanceBotNetCore.Logic.BinanceApi
                 if (resp.Result.ToLower().Contains("code"))
                 {
                     Console.WriteLine(resp.Result);
-                    Console.WriteLine(response.Headers.ToString());
-                    Console.WriteLine(response.StatusCode);
+                    //Console.WriteLine(response.Headers.ToString());
+                    //Console.WriteLine(response.StatusCode);
                     Console.WriteLine(response.Content);
                     throw new InvalidOperationException("Operation failed!");
                 }
@@ -70,7 +70,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
                     return JsonConvert.DeserializeObject<Order>(resp.Result);
                 }
             }
-            if (side =="SELL")
+            if (side == "SELL")
             {
                 var signedBytes = Sign(secret, $"recvWindow=5000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
                 Console.WriteLine($"recvWindow=5000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
@@ -79,8 +79,8 @@ namespace binanceBotNetCore.Logic.BinanceApi
                 if (resp.Result.ToLower().Contains("code"))
                 {
                     Console.WriteLine(resp.Result);
-                    Console.WriteLine(response.Headers.ToString());
-                    Console.WriteLine(response.StatusCode);
+                    //Console.WriteLine(response.Headers.ToString());
+                    //Console.WriteLine(response.StatusCode);
                     Console.WriteLine(response.Content);
                     throw new InvalidOperationException("Operation failed!");
                 }
@@ -93,20 +93,22 @@ namespace binanceBotNetCore.Logic.BinanceApi
             return null;
         }
 
-        public static void GetAllOrders(string symbol)
+        public static List<Order> GetAllOrders(string symbol)
         {
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
             client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
             long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            long startTime = DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeMilliseconds();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            var signedBytes = Sign(secret, $"symbol={symbol}&timestamp={ts}");
-            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/allOrders?symbol={symbol}&timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
+            var signedBytes = Sign(secret, $"startTime={startTime}&symbol={symbol}&timestamp={ts}");
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/allOrders?startTime={startTime}&symbol={symbol}&timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
             var resp = response.Content.ReadAsStringAsync();
             Console.WriteLine(resp.Result);
             Console.WriteLine(response.Headers.ToString());
             Console.WriteLine(response.StatusCode);
             Console.WriteLine(response.Content);
+            return JsonConvert.DeserializeObject<List<Order>>(resp.Result);
         }
 
         public static Order GetOrder(string symbol, string orderId)
@@ -146,6 +148,27 @@ namespace binanceBotNetCore.Logic.BinanceApi
             Console.WriteLine(response.Content);
         }
 
+        public static Trade GetTrade(string symbol, string orderId)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
+            long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var signedBytes = Sign(secret, $"orderId={orderId}&symbol={symbol}&timestamp={ts}");
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/myTrades?orderId={orderId}&symbol={symbol}&timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
+            var resp = response.Content.ReadAsStringAsync();
+            if (resp.Result.ToLower().Contains("code"))
+            {
+                Console.WriteLine(resp.Result);
+                Console.WriteLine(response.Headers.ToString());
+                Console.WriteLine(response.StatusCode);
+                Console.WriteLine(response.Content);
+                throw new InvalidOperationException("Operation failed!");
+            }
+            return JsonConvert.DeserializeObject<Trade>(resp.Result.Replace("[", "").Replace("]", ""));
+        }
+
         public static List<ExchangeSymbol> ExchangeInfo()
         {
             List<ExchangeSymbol> exchangeSymbols = new List<ExchangeSymbol>();
@@ -154,7 +177,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             var resp = response.Content.ReadAsStringAsync();
             dynamic o = JObject.Parse(resp.Result);
             //Console.WriteLine(o.symbols);
-            foreach(JObject item in o.symbols)
+            foreach (JObject item in o.symbols)
             {
                 ExchangeSymbol exchangeSymbol = new ExchangeSymbol()
                 {
@@ -162,7 +185,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
                     Commission = CheckCommission(item["symbol"].ToString())
                 };
                 JToken filters = item["filters"];
-                foreach(var filter in filters)
+                foreach (var filter in filters)
                 {
                     if (filter["filterType"].ToString() == "LOT_SIZE")
                     {
@@ -245,7 +268,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             array = array.Replace("[[", "[");
             array = array.Replace("]]", "]");
             List<Kline> klines = new List<Kline>();
-            foreach(string item in array.Split(new string[] {"],["}, StringSplitOptions.None))
+            foreach (string item in array.Split(new string[] { "],[" }, StringSplitOptions.None))
             {
                 List<string> fields = new List<string>();
                 if (item.StartsWith("["))
@@ -323,22 +346,26 @@ namespace binanceBotNetCore.Logic.BinanceApi
             if (df.Rows.Count > 0)
             {
                 //df.PrettyPrint();
-                for(index = 0; index < df.Rows.Count; index++)
+                for (index = 0; index < df.Rows.Count; index++)
                 {
-                    if (!GlobalStore.Account.ProcessCurrencies.Select(s=>s.Symbol).ToList().Contains(df[index, 0].ToString())
+                    if (!GlobalStore.Account.ProcessCurrencies.Select(s => s.Symbol).ToList().Contains(df[index, 0].ToString())
                         && !df[index, 0].ToString().EndsWith("DOWNUSDT")
                         && !df[index, 0].ToString().EndsWith("UPUSDT"))
                     {
-                        Currency currency = new Currency()
+                        ExchangeSymbol symbol = GlobalStore.Symbols.Where(s => s.Symbol == df[index, 0].ToString()).First();
+                        if (symbol.PriceDecimalPlaces >= 5 && symbol.QuantityDecimalPlaces > 0)
                         {
-                            Symbol = df[index, 0].ToString(),
-                            Status = Currency.CurrencyStatus.WaitingForProcessing
-                        };
-                        GlobalStore.Account.ProcessCurrencies.Add(currency);
-                        GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Distinct().ToList();
-                        GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.OrderBy(o=>o.Symbol).ToList();
-                        GlobalStore.Account.ProcessWaitingCurrencies();
-                        GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Where(c => c.Status != Currency.CurrencyStatus.Processed).ToList();
+                            Currency currency = new Currency()
+                            {
+                                Symbol = df[index, 0].ToString(),
+                                Status = Currency.CurrencyStatus.WaitingForProcessing
+                            };
+                            GlobalStore.Account.ProcessCurrencies.Add(currency);
+                            GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Distinct().ToList();
+                            GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.OrderBy(o => o.Symbol).ToList();
+                            GlobalStore.Account.ProcessWaitingCurrencies();
+                            GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Where(c => c.Status != Currency.CurrencyStatus.Processed).ToList();
+                        }
                     }
                 }
             }
