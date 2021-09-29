@@ -135,7 +135,7 @@ namespace binanceBotNetCore.Logic.Engine
                     if (shouldBuy > shouldntBuy)
                     {
                         Price price = BinanceApi.BinanceApi.GetCurrentPrice(currency.Symbol);
-                        if (price.price < 50)
+                        if (price.price < 1)
                         {
                             Console.BackgroundColor = ConsoleColor.Green;
                             Console.ForegroundColor = ConsoleColor.Black;
@@ -144,23 +144,50 @@ namespace binanceBotNetCore.Logic.Engine
                             Console.WriteLine();
                             OrdersPair ordersPair = new OrdersPair();
                             ExchangeSymbol exchangeSymbol = GlobalStore.Symbols.Where(s => s.Symbol == currency.Symbol).First();
-                            Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(13 / price.price, exchangeSymbol.QuantityDecimalPlaces), price.price, "BUY");
+                            Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(GlobalStore.OrderValue / price.price, exchangeSymbol.QuantityDecimalPlaces), price.price, "BUY");
                             Console.WriteLine("Order status: " + order.status);
                             if (order.status == "FILLED")
                             {
-                                decimal commission = exchangeSymbol.Commission * order.cummulativeQuoteQty;
+                                if (OperatingSystem.IsWindows())
+                                {
+                                    Console.Beep(2500, 500);
+                                }
+                                decimal commission = exchangeSymbol.Commission * price.price;
+                                Trade trade = BinanceApi.BinanceApi.GetTrade(currency.Symbol, order.orderId.ToString());
                                 Console.WriteLine("Price decimal places: " + exchangeSymbol.PriceDecimalPlaces);
                                 Console.WriteLine("Price step: " + exchangeSymbol.PriceStep);
-                                Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, order.executedQty, Math.Round((price.price + ((price.price / 100) * GlobalStore.Percent) + commission), exchangeSymbol.PriceDecimalPlaces), "SELL");
+                                decimal qty = Math.Round(order.executedQty - trade.commission, exchangeSymbol.QuantityDecimalPlaces);
+                                while (qty > order.executedQty - trade.commission)
+                                {
+                                    qty = qty - Math.Round(0.1m, exchangeSymbol.QuantityDecimalPlaces);
+                                }
+                                Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, qty, Math.Round((price.price + ((price.price / 100) * GlobalStore.Percent) + commission), exchangeSymbol.PriceDecimalPlaces), "SELL");
+                                if (backOrder.status == "FILLED")
+                                {
+                                    if (OperatingSystem.IsWindows())
+                                    {
+                                        Console.Beep(3500, 250);
+                                    }
+                                }
+                                else
+                                {
+                                    if (OperatingSystem.IsWindows())
+                                    {
+                                        Console.Beep(2500, 3000);
+                                    }
+                                }
                                 ordersPair.FirstOrder = order;
-                                ordersPair.SecondOrder = order;
+                                ordersPair.SecondOrder = backOrder;
                                 GlobalStore.Account.Orders.Add(ordersPair);
                             }
                         }
                         else
                         {
+                            Console.BackgroundColor = ConsoleColor.Yellow;
+                            Console.ForegroundColor = ConsoleColor.Black;
                             Console.Write($"Shouldn't buy {currency} because of too high price!");
                         }
+                        Console.ResetColor();
                     }
                     else
                     {
@@ -247,19 +274,20 @@ namespace binanceBotNetCore.Logic.Engine
                     if (shouldBuy > shouldntBuy)
                     {
                         Price price = BinanceApi.BinanceApi.GetCurrentPrice(currency.Symbol);
-                        if (price.price < 50)
+                        if (price.price < 1)
                         {
                             Console.BackgroundColor = ConsoleColor.Green;
                             Console.ForegroundColor = ConsoleColor.Black;
                             Console.Write($"Should buy {currency}!");
                             Console.WriteLine();
                             OrdersPair ordersPair = new OrdersPair();
-                            Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(15 / price.price, GlobalStore.Symbols.Where(s => s.Symbol == currency.Symbol).Select(s => s.QuantityDecimalPlaces).First()), price.price, "BUY");
+                            Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(GlobalStore.OrderValue / price.price, GlobalStore.Symbols.Where(s => s.Symbol == currency.Symbol).Select(s => s.QuantityDecimalPlaces).First()), price.price, "BUY");
                             Console.WriteLine("Order status: " + order.status);
                             if (order.status == "FILLED")
                             {
+                                GlobalStore.Account.OrdersCurrencies.Add(currency.Symbol);
                                 decimal commission = GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.Commission).First() * order.cummulativeQuoteQty;
-                                Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, order.executedQty, Math.Round((order.cummulativeQuoteQty + (order.cummulativeQuoteQty / 100) + commission) / order.executedQty, GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.PriceDecimalPlaces).First()), "SELL");
+                                Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, order.executedQty, Math.Round((order.cummulativeQuoteQty + ((order.cummulativeQuoteQty / 100) * GlobalStore.Percent) + commission) / order.executedQty, GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.PriceDecimalPlaces).First()), "SELL");
                                 ordersPair.FirstOrder = order;
                                 ordersPair.SecondOrder = order;
                                 GlobalStore.Account.Orders.Add(ordersPair);
