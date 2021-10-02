@@ -104,10 +104,10 @@ namespace binanceBotNetCore.Logic.BinanceApi
             var signedBytes = Sign(secret, $"startTime={startTime}&symbol={symbol}&timestamp={ts}");
             HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/allOrders?startTime={startTime}&symbol={symbol}&timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
             var resp = response.Content.ReadAsStringAsync();
-            Console.WriteLine(resp.Result);
-            Console.WriteLine(response.Headers.ToString());
-            Console.WriteLine(response.StatusCode);
-            Console.WriteLine(response.Content);
+            // Console.WriteLine(resp.Result);
+            // Console.WriteLine(response.Headers.ToString());
+            // Console.WriteLine(response.StatusCode);
+            // Console.WriteLine(response.Content);
             return JsonConvert.DeserializeObject<List<Order>>(resp.Result);
         }
 
@@ -211,7 +211,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
             client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
-            long ts = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            long ts = GetTimestamp() + 500;
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             var signedBytes = Sign(secret, $"timestamp={ts}");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -221,6 +221,37 @@ namespace binanceBotNetCore.Logic.BinanceApi
             Console.WriteLine(response.Headers.ToString());
             Console.WriteLine(response.StatusCode);
             Console.WriteLine(response.Content);
+        }
+
+        public static List<Balance> AccountBalances()
+        {
+            List<Balance> balances = new List<Balance>();
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "binance test bot");
+            client.DefaultRequestHeaders.Add("X-MBX-APIKEY", apiKey);
+            long ts = GetTimestamp() + 500;
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var signedBytes = Sign(secret, $"timestamp={ts}");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = client.GetAsync($"https://{host}/api/v3/account?timestamp={ts}&signature={GetHexString(signedBytes)}").Result;
+            var resp = response.Content.ReadAsStringAsync();
+            if (resp.Result.ToLower().Contains("code"))
+            {
+                Console.WriteLine(resp.Result);
+                Console.WriteLine(response.Headers.ToString());
+                Console.WriteLine(response.StatusCode);
+                Console.WriteLine(response.Content);
+                throw new InvalidOperationException("Operation failed!");
+            }
+            else
+            {
+                string balances_str = resp.Result;
+                balances_str = balances_str.Remove(0, balances_str.IndexOf("balances"));
+                balances_str = balances_str.Remove(0, balances_str.IndexOf("[") + 1);
+                balances_str = balances_str.Substring(0, balances_str.IndexOf("}],") + 1);
+                balances = JsonConvert.DeserializeObject<List<Balance>>($"[{balances_str}]");
+            }
+            return balances;
         }
 
         public static void DownloadFile(string symbol, string interval, DateTime date)
@@ -242,7 +273,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = client.GetAsync($"https://{host}/api/v1/ticker/price?symbol={symbol}").Result;
             var resp = response.Content.ReadAsStringAsync();
-            Console.WriteLine(resp.Result);
+            // Console.WriteLine(resp.Result);
             return JsonConvert.DeserializeObject<Price>(resp.Result);
         }
 

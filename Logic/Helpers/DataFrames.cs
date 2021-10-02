@@ -8,16 +8,6 @@ namespace binanceBotNetCore.Logic.Helpers
 {
     public static class DataFrames
     {
-        public static DataFrame FindDoji(DataFrame df)
-        {
-            if (df.Columns["Doji"] == null)
-            {
-                throw new Exception("Missing column Doji!");
-            }
-            throw new NotImplementedException();
-            return df;
-        }
-
         public static DataFrame CountBinaryData(DataFrame df)
         {
             int index = 0;

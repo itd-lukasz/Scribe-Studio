@@ -5,10 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using binanceBotNetCore.Logic.BinanceApi;
-using binanceBotNetCore.Logic.Engine;
 using binanceBotNetCore.Logic.Helpers;
-using binanceBotNetCore.Logic.Tools;
-using Microsoft.Data.Analysis;
 
 namespace binanceBotNetCore
 {
@@ -18,6 +15,19 @@ namespace binanceBotNetCore
         {
             Console.Clear();
             Console.ResetColor();
+            List<Balance> balances = BinanceApi.AccountBalances();
+            foreach (Balance balance in balances.Where(b => b.free != 0 || b.locked != 0).ToList())
+            {
+                if (balance.asset == "USDT")
+                {
+                    Console.WriteLine($"{balance.asset}: Free: {balance.free}, Locked: {balance.locked}, Price:1, Value: {(balance.free + balance.locked)}");
+                }
+                else
+                {
+                    Price price = BinanceApi.GetCurrentPrice(balance.asset + "USDT");
+                    Console.WriteLine($"{balance.asset}: Free: {balance.free}, Locked: {balance.locked}, Price:{price.price}, Value: {(balance.free + balance.locked) * price.price}");
+                }
+            }
             GlobalStore.Symbols = BinanceApi.ExchangeInfo();
             //var s = GlobalStore.Symbols.Where(s => s.Symbol == "ARPAUSDT").First();
             //var s2 = GlobalStore.Symbols.Where(s => s.Symbol == "ZILUSDT").First();
@@ -44,7 +54,7 @@ namespace binanceBotNetCore
             //Console.WriteLine("Price decimal places: " + exchangeSymbol.PriceDecimalPlaces);
             //Console.WriteLine("Price step: " + exchangeSymbol.PriceStep);
             //Order backOrder = BinanceApi.CreateOrder(exchangeSymbol.Symbol, 212, Math.Round((0.06136m + ((0.06136m / 100) * GlobalStore.Percent) + commission), exchangeSymbol.PriceDecimalPlaces), "SELL");
-            MainLogic();
+            //MainLogic();
             //BinanceApi.AccountStatus();
             //Price price = BinanceApi.GetCurrentPrice("TRXUSDT");
             ////Console.WriteLine(price);

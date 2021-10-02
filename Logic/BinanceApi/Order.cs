@@ -20,7 +20,7 @@ namespace binanceBotNetCore.Logic.BinanceApi
         {
             get
             {
-                if (time != null)
+                if (time == 0)
                 {
                     return DataFrameUtils.UnixTimeStampToDateTime(Convert.ToDouble(time));
                 }
