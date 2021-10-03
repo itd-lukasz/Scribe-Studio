@@ -162,7 +162,7 @@ namespace binanceBotNetCore.Logic.Engine
                                     qty = qty - Math.Round(0.1m, exchangeSymbol.QuantityDecimalPlaces);
                                 }
                                 Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, qty, Math.Round((price.price + ((price.price / 100) * GlobalStore.Percent) + commission), exchangeSymbol.PriceDecimalPlaces), "SELL");
-                                if (backOrder.status == "FILLED")
+                                if (backOrder.status == "NEW")
                                 {
                                     if (OperatingSystem.IsWindows())
                                     {
@@ -283,15 +283,15 @@ namespace binanceBotNetCore.Logic.Engine
                             OrdersPair ordersPair = new OrdersPair();
                             Order order = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, Math.Round(GlobalStore.OrderValue / price.price, GlobalStore.Symbols.Where(s => s.Symbol == currency.Symbol).Select(s => s.QuantityDecimalPlaces).First()), price.price, "BUY");
                             Console.WriteLine("Order status: " + order.status);
+                            ordersPair.FirstOrder = order;
                             if (order.status == "FILLED")
                             {
                                 GlobalStore.Account.OrdersCurrencies.Add(currency.Symbol);
                                 decimal commission = GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.Commission).First() * order.cummulativeQuoteQty;
                                 Order backOrder = BinanceApi.BinanceApi.CreateOrder(currency.Symbol, order.executedQty, Math.Round((order.cummulativeQuoteQty + ((order.cummulativeQuoteQty / 100) * GlobalStore.Percent) + commission) / order.executedQty, GlobalStore.Symbols.Where(s => s.Symbol == order.symbol).Select(s => s.PriceDecimalPlaces).First()), "SELL");
-                                ordersPair.FirstOrder = order;
                                 ordersPair.SecondOrder = order;
-                                GlobalStore.Account.Orders.Add(ordersPair);
                             }
+                            GlobalStore.Account.Orders.Add(ordersPair);
                         }
                         else
                         {

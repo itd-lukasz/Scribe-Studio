@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using binanceBotNetCore.Logic.BinanceApi;
+using binanceBotNetCore.Logic.Engine;
 using binanceBotNetCore.Logic.Helpers;
 
 namespace binanceBotNetCore
@@ -15,25 +16,13 @@ namespace binanceBotNetCore
         {
             Console.Clear();
             Console.ResetColor();
-            List<Balance> balances = BinanceApi.AccountBalances();
-            foreach (Balance balance in balances.Where(b => b.free != 0 || b.locked != 0).ToList())
-            {
-                if (balance.asset == "USDT")
-                {
-                    Console.WriteLine($"{balance.asset}: Free: {balance.free}, Locked: {balance.locked}, Price:1, Value: {(balance.free + balance.locked)}");
-                }
-                else
-                {
-                    Price price = BinanceApi.GetCurrentPrice(balance.asset + "USDT");
-                    Console.WriteLine($"{balance.asset}: Free: {balance.free}, Locked: {balance.locked}, Price:{price.price}, Value: {(balance.free + balance.locked) * price.price}");
-                }
-            }
+            SaveCurrentBalance();
             GlobalStore.Symbols = BinanceApi.ExchangeInfo();
             //var s = GlobalStore.Symbols.Where(s => s.Symbol == "ARPAUSDT").First();
             //var s2 = GlobalStore.Symbols.Where(s => s.Symbol == "ZILUSDT").First();
             GlobalStore.Units = 10;
-            GlobalStore.Percent = 0.2m;
-            GlobalStore.OrderValue = 23;
+            GlobalStore.Percent = 0.25m;
+            GlobalStore.OrderValue = 25;
             //recvWindow=5000&symbol=ARPAUSDT&side=SELL&type=LIMIT&quantity=189.21060000&timeInForce=GTC&timestamp=1632860971691&price=0.06886
             //BinanceApi.CreateOrder("ARPAUSDT", )
             //BinanceApi.GetTrade("ARPAUSDT", "188770090");
@@ -54,7 +43,7 @@ namespace binanceBotNetCore
             //Console.WriteLine("Price decimal places: " + exchangeSymbol.PriceDecimalPlaces);
             //Console.WriteLine("Price step: " + exchangeSymbol.PriceStep);
             //Order backOrder = BinanceApi.CreateOrder(exchangeSymbol.Symbol, 212, Math.Round((0.06136m + ((0.06136m / 100) * GlobalStore.Percent) + commission), exchangeSymbol.PriceDecimalPlaces), "SELL");
-            //MainLogic();
+            MainLogic();
             //BinanceApi.AccountStatus();
             //Price price = BinanceApi.GetCurrentPrice("TRXUSDT");
             ////Console.WriteLine(price);
@@ -84,6 +73,34 @@ namespace binanceBotNetCore
             //MainAsync().Wait();
             // or, if you want to avoid exceptions being wrapped into AggregateException:
             //  MainAsync().GetAwaiter().GetResult();
+        }
+
+        private static void SaveCurrentBalance()
+        {
+            if ((DateTime.Now - SQL.LastBalanceDate()).TotalHours > 1)
+            {
+                List<Balance> balances = BinanceApi.AccountBalances();
+                DateTime date = DateTime.Now;
+                foreach (Balance balance in balances.Where(b => b.free != 0 || b.locked != 0).ToList())
+                {
+                    if (balance.asset == "USDT")
+                    {
+                        SQL.SaveBalance(balance, new Price()
+                        {
+                            price = 1,
+                            symbol = "USDT",
+                            time = date
+                        }, date);
+                        Console.WriteLine($"{balance.asset}: Free: {balance.free}, Locked: {balance.locked}, Price:1, Value: {(balance.free + balance.locked)}");
+                    }
+                    else
+                    {
+                        Price price = BinanceApi.GetCurrentPrice(balance.asset + "USDT");
+                        SQL.SaveBalance(balance, price, date);
+                        Console.WriteLine($"{balance.asset}: Free: {balance.free}, Locked: {balance.locked}, Price:{price.price}, Value: {(balance.free + balance.locked) * price.price}");
+                    }
+                }
+            }
         }
 
         static void MainLogic()
@@ -122,6 +139,7 @@ namespace binanceBotNetCore
                         List<Order> orders = BinanceApi.GetAllOrders(currency);
                         Order.AddMissingOrders(orders);
                     }
+                    SaveCurrentBalance();
                     Thread.Sleep(5000);
                 }
                 catch (Exception exc)

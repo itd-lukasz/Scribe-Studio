@@ -53,8 +53,8 @@ namespace binanceBotNetCore.Logic.BinanceApi
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             if (side == "BUY" || side == "")
             {
-                var signedBytes = Sign(secret, $"recvWindow=5000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
-                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?recvWindow=5000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
+                var signedBytes = Sign(secret, $"recvWindow=50000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
+                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?recvWindow=50000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=IOC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
                 var resp = response.Content.ReadAsStringAsync();
                 if (resp.Result.ToLower().Contains("code"))
                 {
@@ -72,9 +72,9 @@ namespace binanceBotNetCore.Logic.BinanceApi
             }
             if (side == "SELL")
             {
-                var signedBytes = Sign(secret, $"recvWindow=5000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
-                Console.WriteLine($"recvWindow=5000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
-                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?recvWindow=5000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
+                var signedBytes = Sign(secret, $"recvWindow=50000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
+                Console.WriteLine($"recvWindow=50000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&price={price.ToString().Replace(",", ".")}");
+                HttpResponseMessage response = client.PostAsync($"https://{host}/api/v3/order?recvWindow=50000&symbol={symbol}&side={side}&type=LIMIT&quantity={quantity.ToString().Replace(",", ".")}&timeInForce=GTC&timestamp={ts}&signature={GetHexString(signedBytes)}&price={price.ToString().Replace(",", ".")}", null).Result;
                 var resp = response.Content.ReadAsStringAsync();
                 if (resp.Result.ToLower().Contains("code"))
                 {
@@ -395,11 +395,11 @@ namespace binanceBotNetCore.Logic.BinanceApi
                             GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Distinct().ToList();
                             GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.OrderBy(o => o.Symbol).ToList();
                             GlobalStore.Account.ProcessWaitingCurrencies();
-                            GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Where(c => c.Status != Currency.CurrencyStatus.Processed).ToList();
                         }
                     }
                 }
             }
+            GlobalStore.Account.ProcessCurrencies = GlobalStore.Account.ProcessCurrencies.Where(c => c.Status != Currency.CurrencyStatus.Processed).ToList();
             return prices;
         }
 
