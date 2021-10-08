@@ -115,6 +115,16 @@ namespace binanceBotNetCore.Logic.Helpers
             df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Eight_Minute_Ago")); //88
             df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Nine_Minute_Ago")); //89
             df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Ten_Minute_Ago")); //90
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("NightlyStar")); //91
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("AccessionBear")); //92
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("DarkCloud")); //93
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("FallingStar")); //94
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("MorningStar")); //95
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("AccessionBoom")); //96
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("Penetration")); //97
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("Pinbar")); //98
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("Doji")); //99
+            df.Columns.Add(new StringDataFrameColumn("FiguresBinaryData")); //100
             int index = 0;
             StreamReader sr = new StreamReader(filename);
             FileInfo fi = new FileInfo(filename);
@@ -149,7 +159,7 @@ namespace binanceBotNetCore.Logic.Helpers
             }
             return df;
         }
-    
+
         public static DataFrame ParseList(List<Kline> klines, string currency)
         {
             DataFrame df = new DataFrame();
@@ -223,29 +233,39 @@ namespace binanceBotNetCore.Logic.Helpers
             df.Columns.Add(new PrimitiveDataFrameColumn<int>("UpTenMinuteAgo")); //67
             df.Columns.Add(new StringDataFrameColumn("Currency")); //68
             df.Columns.Add(new PrimitiveDataFrameColumn<bool>("ShouldBuy")); //69
-            df.Columns.Add(new StringDataFrameColumn("BinaryData")); //79
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_One_Minute_Ago")); //80
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Two_Minute_Ago")); //81
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Three_Minute_Ago")); //82
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Four_Minute_Ago")); //83
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Five_Minute_Ago")); //84
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Six_Minute_Ago")); //85
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Seven_Minute_Ago")); //86
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Eight_Minute_Ago")); //87
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Nine_Minute_Ago")); //88
-            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Ten_Minute_Ago")); //89
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_One_Minute_Ago")); //90
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Two_Minute_Ago")); //91
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Three_Minute_Ago")); //92
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Four_Minute_Ago")); //93
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Five_Minute_Ago")); //94
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Six_Minute_Ago")); //95
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Seven_Minute_Ago")); //96
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Eight_Minute_Ago")); //97
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Nine_Minute_Ago")); //98
-            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Ten_Minute_Ago")); //99
+            df.Columns.Add(new StringDataFrameColumn("BinaryData")); //70
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_One_Minute_Ago")); //71
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Two_Minute_Ago")); //72
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Three_Minute_Ago")); //73
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Four_Minute_Ago")); //74
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Five_Minute_Ago")); //75
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Six_Minute_Ago")); //76
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Seven_Minute_Ago")); //77
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Eight_Minute_Ago")); //78
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Nine_Minute_Ago")); //79
+            df.Columns.Add(new StringDataFrameColumn("Range_High_Low_Ten_Minute_Ago")); //80
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_One_Minute_Ago")); //81
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Two_Minute_Ago")); //82
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Three_Minute_Ago")); //83
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Four_Minute_Ago")); //84
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Five_Minute_Ago")); //85
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Six_Minute_Ago")); //86
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Seven_Minute_Ago")); //87
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Eight_Minute_Ago")); //88
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Nine_Minute_Ago")); //89
+            df.Columns.Add(new StringDataFrameColumn("Range_Open_Close_Ten_Minute_Ago")); //90
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("NightlyStar")); //91
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("AccessionBear")); //92
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("DarkCloud")); //93
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("FallingStar")); //94
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("MorningStar")); //95
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("AccessionBoom")); //96
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("Penetration")); //97
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("Pinbar")); //98
+            df.Columns.Add(new PrimitiveDataFrameColumn<bool>("Doji")); //99
+            df.Columns.Add(new StringDataFrameColumn("FiguresBinaryData")); //100
             int index = 0;
-            foreach(Kline kline in klines)
+            foreach (Kline kline in klines)
             {
                 df = df.Append(new List<KeyValuePair<string, object>>(){
                     new KeyValuePair<string, object>("index", index),

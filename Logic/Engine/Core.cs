@@ -31,6 +31,17 @@ namespace binanceBotNetCore.Logic.Engine
                     {
                         DataFrame local_df = DataFrames.CountBinaryData(Kline.ParseCsv(file));
                         local_df = DataFrames.CountRanges(local_df);
+                        local_df = Figures.CountDoji(local_df);
+                        local_df = Figures.CountPinbar(local_df);
+                        local_df = Figures.CountPenetration(local_df);
+                        local_df = Figures.CountAccessionBoom(local_df);
+                        local_df = Figures.CountMorningStar(local_df);
+                        local_df = Figures.CountFallingStar(local_df);
+                        local_df = Figures.CountDarkCloud(local_df);
+                        local_df = Figures.CountAccessionBear(local_df);
+                        local_df = Figures.CountNightlyStar(local_df);
+                        local_df = Figures.CountBinaryData(local_df);
+                        local_df = DataFrames.CountShouldBuy(local_df);
                         if (df.Columns.Count == 0)
                         {
                             foreach (DataFrameColumn column in local_df.Columns)
@@ -49,6 +60,16 @@ namespace binanceBotNetCore.Logic.Engine
                     currency.Status = Currency.CurrencyStatus.Searching;
                     DataFrame current_df = DataFrames.CountBinaryData(BinanceApi.BinanceApi.GetKlinesDataFrame($"{currency}", "1m"));
                     current_df = DataFrames.CountRanges(current_df);
+                    current_df = Figures.CountDoji(current_df);
+                    current_df = Figures.CountPinbar(current_df);
+                    current_df = Figures.CountPenetration(current_df);
+                    current_df = Figures.CountAccessionBoom(current_df);
+                    current_df = Figures.CountMorningStar(current_df);
+                    current_df = Figures.CountFallingStar(current_df);
+                    current_df = Figures.CountDarkCloud(current_df);
+                    current_df = Figures.CountAccessionBear(current_df);
+                    current_df = Figures.CountNightlyStar(current_df);
+                    current_df = Figures.CountBinaryData(current_df);
                     //current_df.PrettyPrint();
                     string binaryData = current_df[current_df.Rows.Count - 1, 70].ToString();
                     string Range_High_Low_One_Minute_Ago = current_df[current_df.Rows.Count - 1, 71].ToString();
@@ -61,6 +82,7 @@ namespace binanceBotNetCore.Logic.Engine
                     string Range_High_Low_Eight_Minute_Ago = current_df[current_df.Rows.Count - 1, 78].ToString();
                     string Range_High_Low_Nine_Minute_Ago = current_df[current_df.Rows.Count - 1, 79].ToString();
                     string Range_High_Low_Ten_Minute_Ago = current_df[current_df.Rows.Count - 1, 80].ToString();
+                    string figuresBinary = current_df[current_df.Rows.Count-1, 100].ToString();
                     //--------------------------------//
                     List<DataFrameResultsCombination> results = new List<DataFrameResultsCombination>();
                     StreamReader sr = new StreamReader($"data/{currency}-1m-agg.csv");
@@ -117,7 +139,7 @@ namespace binanceBotNetCore.Logic.Engine
                         if (line.Split('|')[1].Count() > 1)
                         {
                             line = line.Replace(line.Split('|')[1], binaryData.Substring(0, GlobalStore.Units));
-                            if (line.ToLower().StartsWith(searchPattern.ToLower().Replace("_bool_", "true")))
+                            if (line.ToLower().StartsWith(searchPattern.ToLower().Replace("_bool_", "true")) && line.ToLower().EndsWith(figuresBinary))
                             {
                                 shouldBuy += Convert.ToInt32(line.Split('|').ToList()[13]);
                             }
@@ -374,7 +396,8 @@ namespace binanceBotNetCore.Logic.Engine
                         sevenMinute = fields[77],
                         eightMinute = fields[78],
                         nineMinute = fields[79],
-                        tenMinute = fields[80]
+                        tenMinute = fields[80],
+                        figureBinary = fields[100]
                     };
                     results.Add(row);
                 }
@@ -400,7 +423,8 @@ namespace binanceBotNetCore.Logic.Engine
                 c.sevenMinute,
                 c.eightMinute,
                 c.nineMinute,
-                c.tenMinute
+                c.tenMinute,
+                c.figureBinary
             }).Select(gcs => new DataFrameResultsCombination()
             {
                 symbol = gcs.Key.symbol,
@@ -416,12 +440,13 @@ namespace binanceBotNetCore.Logic.Engine
                 eightMinute = gcs.Key.eightMinute,
                 nineMinute = gcs.Key.nineMinute,
                 tenMinute = gcs.Key.tenMinute,
+                figureBinary = gcs.Key.figureBinary,
                 count = gcs.Count()
             });
             StreamWriter sw = new StreamWriter(fileName.Replace(".csv", "-agg.csv"));
             foreach (DataFrameResultsCombination res in consolidatedChildren)
             {
-                sw.WriteLine($"{res.symbol}|{res.binary}|{res.shouldBuy}|{res.oneMinute}|{res.twoMinute}|{res.threeMinute}|{res.fourMinute}|{res.fiveMinute}|{res.sixMinute}|{res.sevenMinute}|{res.eightMinute}|{res.nineMinute}|{res.tenMinute}|{res.count}");
+                sw.WriteLine($"{res.symbol}|{res.binary}|{res.shouldBuy}|{res.oneMinute}|{res.twoMinute}|{res.threeMinute}|{res.fourMinute}|{res.fiveMinute}|{res.sixMinute}|{res.sevenMinute}|{res.eightMinute}|{res.nineMinute}|{res.tenMinute}|{res.count}|{res.figureBinary}");
             }
             sw.Close();
         }

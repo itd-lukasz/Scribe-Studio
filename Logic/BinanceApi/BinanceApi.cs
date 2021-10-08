@@ -381,7 +381,8 @@ namespace binanceBotNetCore.Logic.BinanceApi
                 {
                     if (!GlobalStore.Account.ProcessCurrencies.Select(s => s.Symbol).ToList().Contains(df[index, 0].ToString())
                         && !df[index, 0].ToString().EndsWith("DOWNUSDT")
-                        && !df[index, 0].ToString().EndsWith("UPUSDT"))
+                        && !df[index, 0].ToString().EndsWith("UPUSDT")
+                        && GlobalStore.Symbols.Count > 0)
                     {
                         ExchangeSymbol symbol = GlobalStore.Symbols.Where(s => s.Symbol == df[index, 0].ToString()).First();
                         if (symbol.PriceDecimalPlaces >= 5 && symbol.QuantityDecimalPlaces > 0)

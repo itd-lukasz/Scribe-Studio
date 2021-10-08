@@ -21,6 +21,7 @@ namespace binanceBotNetCore.Logic.Helpers
         public string eightMinute { get; set; }
         public string nineMinute { get; set; }
         public string tenMinute { get; set; }
+        public string figureBinary { get; set; }
         public int count { get; set; }
     }
 }

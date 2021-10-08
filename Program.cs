@@ -22,7 +22,7 @@ namespace binanceBotNetCore
             //var s2 = GlobalStore.Symbols.Where(s => s.Symbol == "ZILUSDT").First();
             GlobalStore.Units = 10;
             GlobalStore.Percent = 0.25m;
-            GlobalStore.OrderValue = 25;
+            GlobalStore.OrderValue = 20;
             //recvWindow=5000&symbol=ARPAUSDT&side=SELL&type=LIMIT&quantity=189.21060000&timeInForce=GTC&timestamp=1632860971691&price=0.06886
             //BinanceApi.CreateOrder("ARPAUSDT", )
             //BinanceApi.GetTrade("ARPAUSDT", "188770090");
